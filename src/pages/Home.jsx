@@ -4,7 +4,9 @@ import Header from "../components/Header";
 
 const Home = () => {
   const [clickCount, setClickCount] = useState(0); // Bosish soni
-  const [level, setLevel] = useState(1); // Daraja
+  const [level, setLevel] = useState(0); // Daraja
+  const [showClickNumber, setShowClickNumber] = useState(false); // Bosish sonini ko'rsatish
+  const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 }); // Bosish joyi
 
   // Har 1000 ta bosishda darajani oshirish
   useEffect(() => {
@@ -13,9 +15,16 @@ const Home = () => {
     }
   }, [clickCount]);
 
-  // Rasmga bosilganda bosish sonini oshirish
-  const handleClick = () => {
+  // Rasmga bosilganda bosish sonini oshirish va animatsiya
+  const handleClick = (event) => {
     setClickCount((prevCount) => prevCount + 1);
+    setClickPosition({ x: event.clientX, y: event.clientY });
+    setShowClickNumber(true);
+
+    // 1 soniyadan keyin bosish sonini yashirish
+    setTimeout(() => {
+      setShowClickNumber(false);
+    }, 1000);
   };
 
   // Progress bar uchun hisoblash
@@ -42,8 +51,37 @@ const Home = () => {
         </div>
       </div>
       <div className="flex justify-center items-center mt-40">
-        <img src={Img1} alt="img" onClick={handleClick} style={{ cursor: "pointer" }} />
+        <img
+          src={Img1}
+          alt="img"
+          onClick={handleClick}
+          style={{ cursor: "pointer", borderRadius: "50%", transition: "transform 0.1s" }}
+          className="hover:scale-110 active:scale-95"
+        />
       </div>
+      {showClickNumber && (
+        <div
+          style={{
+            position: "absolute",
+            left: clickPosition.x,
+            top: clickPosition.y,
+            color: "black",
+            fontSize: "32px",
+            fontWeight: "bold",
+            animation: "fadeOut 1s forwards",
+          }}
+        >
+          +1
+        </div>
+      )}
+      <style>
+        {`
+          @keyframes fadeOut {
+            0% { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-20px); }
+          }
+        `}
+      </style>
     </>
   );
 };
