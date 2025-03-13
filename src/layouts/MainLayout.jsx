@@ -8,7 +8,7 @@ const MainLayout = () => {
       {/* Fon rasmi optimallashtirilgan */}
       <main
         className="grow py-3 bg-cover bg-center"
-        style={{ backgroundImage: "url('/bg/main.png')" }}
+        style={{ backgroundImage: "url('/bg/main.webp')" }}
       >
         <div className="w-full max-w-5xl mx-auto px-5">
           <Outlet />
