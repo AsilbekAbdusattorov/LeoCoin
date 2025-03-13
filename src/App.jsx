@@ -1,20 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import { Route, createBrowserRouter, createRoutesFromElements, RouterProvider } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import {
+  Route,
+  createBrowserRouter,
+  createRoutesFromElements,
+  RouterProvider,
+  Navigate,
+} from "react-router-dom";
 
-// pages
-import Home from './pages/Home';
-import Tasks from './pages/Tasks';
-import Balance from './pages/Balance';
-import PageNotFound from './pages/PageNotFound';
-import MainLayout from './layouts/MainLayout';
-import Invite from './pages/Invite';
-import Loader from './components/Loader'; // Loader komponentini import qilamiz
+// Sahifalar
+import Home from "./pages/Home";
+import Tasks from "./pages/Tasks";
+import Balance from "./pages/Balance";
+import PageNotFound from "./pages/PageNotFound";
+import MainLayout from "./layouts/MainLayout";
+import Invite from "./pages/Invite";
+import Register from "./pages/Register";
+import Loader from "./components/Loader";
 
 const App = () => {
   const [loading, setLoading] = useState(true);
+  const [isRegistered, setIsRegistered] = useState(
+    localStorage.getItem("registered") === "true"
+  );
 
   useEffect(() => {
-    // 3 soniya ichida yuklanishni tugatish
+    // 📌 3 soniya yuklanish effekti
     const timer = setTimeout(() => {
       setLoading(false);
     }, 3000);
@@ -24,13 +34,21 @@ const App = () => {
 
   const router = createBrowserRouter(
     createRoutesFromElements(
-      <Route element={<MainLayout />}>
-        <Route index element={<Home />} />
-        <Route path="/Tasks" element={<Tasks />} />
-        <Route path="/Balance" element={<Balance />} />
-        <Route path="/Invite" element={<Invite />} />
-        <Route path="*" element={<PageNotFound />} />
-      </Route>
+      <>
+        {/* 📌 Agar foydalanuvchi ro'yxatdan o'tmagan bo'lsa, register sahifasiga yo'naltiriladi */}
+        <Route
+          path="/"
+          element={isRegistered ? <Navigate to="/home" /> : <Navigate to="/register" />}
+        />
+        <Route path="/register" element={<Register setIsRegistered={setIsRegistered} />} />
+        <Route element={<MainLayout />}>
+          <Route path="/home" element={<Home />} />
+          <Route path="/tasks" element={<Tasks />} />
+          <Route path="/balance" element={<Balance />} />
+          <Route path="/invite" element={<Invite />} />
+          <Route path="*" element={<PageNotFound />} />
+        </Route>
+      </>
     )
   );
 
