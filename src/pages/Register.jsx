@@ -26,17 +26,18 @@ const Register = ({ setIsRegistered }) => {
     if (!phone) setPhone("+998-");
   };
 
-  // 📌 Formani yuborish funksiyasi
   const handleSubmit = (e) => {
     e.preventDefault();
     setLoading(true);
-
+  
     // Ro'yxatdan o'tganligini saqlash
     localStorage.setItem("registered", "true");
     setIsRegistered(true);
-
-    setTimeout(() => navigate("/home"), 500);
+  
+    // Darhol home sahifasiga yo'naltirish
+    navigate("/home");
   };
+  
 
   // 📌 Forma to'liq to'ldirilganligini tekshirish
   const isFormValid =
