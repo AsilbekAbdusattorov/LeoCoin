@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-const ProductsAdminDashboard = () => {
+const AdminDashboard = () => {
   const [products, setProducts] = useState([]);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState(50);
+  const [image, setImage] = useState("");
+  const [category, setCategory] = useState("shop"); // Default: shop
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -29,6 +31,8 @@ const ProductsAdminDashboard = () => {
         title,
         description,
         price,
+        image,
+        category,
       });
 
       if (response.data.success) {
@@ -36,6 +40,8 @@ const ProductsAdminDashboard = () => {
         setTitle("");
         setDescription("");
         setPrice(50);
+        setImage("");
+        setCategory("shop");
       }
     } catch (error) {
       setError("Ошибка при добавлении продукта");
@@ -68,6 +74,21 @@ const ProductsAdminDashboard = () => {
           value={price}
           onChange={(e) => setPrice(e.target.value)}
         />
+        <input
+          type="text"
+          placeholder="Ссылка на изображение"
+          className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
+          value={image}
+          onChange={(e) => setImage(e.target.value)}
+        />
+        <select
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+          className="w-full p-3 mb-4 border border-gray-300 rounded-lg"
+        >
+          <option value="shop">Магазин</option>
+          <option value="inventory">Инвентарь</option>
+        </select>
         <button
           type="submit"
           className="w-full p-3 bg-green-500 text-white rounded-lg hover:bg-green-600"
@@ -82,6 +103,14 @@ const ProductsAdminDashboard = () => {
             <h3 className="font-bold">{product.title}</h3>
             <p>{product.description}</p>
             <p>Цена: {product.price} танга</p>
+            <p>Категория: {product.category === "shop" ? "Магазин" : "Инвентарь"}</p>
+            {product.image && (
+              <img
+                src={product.image}
+                alt={product.title}
+                className="w-24 h-24 object-cover rounded-lg"
+              />
+            )}
           </div>
         ))}
       </div>
@@ -89,4 +118,4 @@ const ProductsAdminDashboard = () => {
   );
 };
 
-export default ProductsAdminDashboard;
+export default AdminDashboard;
