@@ -3,6 +3,10 @@
     {
       "source": "/api/:path*",
       "destination": "https://leocoin.onrender.com/api/:path*"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
@@ -14,17 +18,6 @@
         { "key": "Access-Control-Allow-Methods", "value": "GET, POST, PUT, DELETE, OPTIONS" },
         { "key": "Access-Control-Allow-Headers", "value": "Content-Type, Authorization" }
       ]
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/:path*",
-      "dest": "https://leocoin.onrender.com/api/:path*"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html",
-      "status": 200
     }
   ],
   "cleanUrls": true,
