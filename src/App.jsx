@@ -10,7 +10,7 @@ import {
 // Sahifalar
 import Home from "./pages/Home";
 import Tasks from "./pages/Tasks";
-import Balance from "./pages/Products";
+import Balance from "./pages/Balance";
 import PageNotFound from "./pages/PageNotFound";
 import MainLayout from "./layouts/MainLayout";
 import Invite from "./pages/Invite";
