@@ -12,10 +12,8 @@ const Home = () => {
   const [tokens, setTokens] = useState(1000);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [isHolding, setIsHolding] = useState(false); // Rasmni bosib turish holati
   const navigate = useNavigate();
 
-  // Foydalanuvchi ma'lumotlarini yuklash
   useEffect(() => {
     const fetchUserData = async () => {
       const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
@@ -50,14 +48,12 @@ const Home = () => {
     fetchUserData();
   }, [navigate]);
 
-  // Click count 1000 ga yetganda levelni oshirish
   useEffect(() => {
     if (clickCount > 0 && clickCount % 1000 === 0) {
       setLevel((prevLevel) => prevLevel + 1);
     }
   }, [clickCount]);
 
-  // Har soatda tokenlarni to'ldirish
   useEffect(() => {
     const interval = setInterval(() => {
       setTokens(1000);
@@ -66,18 +62,8 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Rasmni bosib turishni aniqlash
-  const handleMouseDown = () => {
-    setIsHolding(true);
-  };
-
-  const handleMouseUp = () => {
-    setIsHolding(false);
-  };
-
-  // Click bosilganda ishlaydigan funksiya
   const handleClick = async (event) => {
-    if (tokens > 0 && !isHolding) { // Faqat bosib turilmasa ishlaydi
+    if (tokens > 0) {
       const newClickCount = clickCount + 1;
       const newTokens = tokens - 1;
 
@@ -110,7 +96,6 @@ const Home = () => {
     }
   };
 
-  // Progress bar uchun hisoblar
   const progressWidth = ((clickCount % 1000) / 1000) * 100;
   const tokensWidth = (tokens / 1000) * 100;
 
@@ -126,15 +111,15 @@ const Home = () => {
     <>
       <Header level={level} />
       <div className="flex flex-col items-center justify-center mt-6">
-        <h2 className="text-white text-center font-medium mt-10 text-lg sm:text-xl md:text-2xl">LEOcoin’s</h2>
-        <p className="text-white text-center font-bold text-[41px] sm:text-[50px] md:text-[60px]">
+        <h2 className="text-white text-center font-medium mt-10 text-2xl md:text-3xl lg:text-4xl">LEOcoin’s</h2>
+        <p className="text-white text-center font-bold text-[41px] md:text-[50px] lg:text-[60px]">
           {clickCount}
         </p>
-        <div className="relative w-[80%] max-w-[296px] mt-4">
+        <div className="relative w-[80%] md:w-[296px] mt-4">
           <div className="p-[2px] rounded-[12px]">
-            <div className="bg-white w-full h-[27px] rounded-[12px] relative">
+            <div className="bg-white w-full h-[20px] md:h-[27px] rounded-[12px] relative">
               <div
-                className="absolute left-0 top-1/2 -translate-y-1/2 h-[26px] bg-blue-700 rounded-[22px]"
+                className="absolute left-0 top-1/2 -translate-y-1/2 h-full bg-blue-700 rounded-[22px]"
                 style={{ width: `${progressWidth}%` }}
               ></div>
             </div>
@@ -144,29 +129,25 @@ const Home = () => {
           </p>
         </div>
       </div>
-      <div className="flex justify-center items-center mt-20 sm:mt-40">
+      <div className="flex justify-center items-center mt-20 md:mt-40">
         <img
           src={Img1}
           alt="img"
           onClick={handleClick}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onTouchStart={handleMouseDown}
-          onTouchEnd={handleMouseUp}
           style={{
             cursor: tokens > 0 ? "pointer" : "not-allowed",
             borderRadius: "50%",
             transition: "transform 0.1s",
             opacity: tokens > 0 ? 1 : 0.5,
           }}
-          className="hover:scale-110 active:scale-95 w-[150px] h-[150px] sm:w-[200px] sm:h-[200px] md:w-[250px] md:h-[250px]"
+          className="w-[150px] h-[150px] md:w-[200px] md:h-[200px] lg:w-[250px] lg:h-[250px] hover:scale-110 active:scale-95"
         />
       </div>
-      <div className="absolute bottom-28 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[500px]">
+      <div className="absolute bottom-20 md:bottom-28 left-1/2 transform -translate-x-1/2 w-[90%]">
         <p className="text-white text-lg font-bold text-center">
           ⚡ {tokens}/1000
         </p>
-        <div className="bg-white w-full h-[20px] rounded-full relative mt-1">
+        <div className="bg-white w-full h-[15px] md:h-[20px] rounded-full relative mt-1">
           <div
             className="absolute left-0 top-0 h-full bg-blue-600 rounded-full"
             style={{ width: `${tokensWidth}%` }}
