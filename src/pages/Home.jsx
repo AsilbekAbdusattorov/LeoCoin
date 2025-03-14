@@ -24,7 +24,7 @@ const Home = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:5000/api/auth/user", {
+        const response = await axios.get("https://leocoin.onrender.com/api/auth/user", {
           params: { email: userEmail },
         });
 
@@ -80,7 +80,7 @@ const Home = () => {
       try {
         const userEmail = JSON.parse(localStorage.getItem("user"))?.email; // LocalStoragedan emailni olish
         await axios.post(
-          "http://localhost:5000/api/auth/update",
+          "https://leocoin.onrender.com/api/auth/update",
           {
             email: userEmail, // Foydalanuvchi emailini yuborish
             clickCount: newClickCount,

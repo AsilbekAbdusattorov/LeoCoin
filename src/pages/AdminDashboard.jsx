@@ -13,7 +13,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get("http://localhost:5000/api/admin/tasks");
+        const response = await axios.get("https://leocoin.onrender.com/api/admin/tasks");
         setTasks(response.data.tasks);
       } catch (error) {
         setError("Ошибка при загрузке заданий");
@@ -27,7 +27,7 @@ const AdminDashboard = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:5000/api/admin/add-task", {
+      const response = await axios.post("https://leocoin.onrender.com/api/admin/add-task", {
         title,
         description,
         reward,
