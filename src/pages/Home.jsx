@@ -12,8 +12,10 @@ const Home = () => {
   const [tokens, setTokens] = useState(1000);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [isHolding, setIsHolding] = useState(false); // Rasmni bosib turish holati
   const navigate = useNavigate();
 
+  // Foydalanuvchi ma'lumotlarini yuklash
   useEffect(() => {
     const fetchUserData = async () => {
       const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
@@ -48,12 +50,14 @@ const Home = () => {
     fetchUserData();
   }, [navigate]);
 
+  // Click count 1000 ga yetganda levelni oshirish
   useEffect(() => {
     if (clickCount > 0 && clickCount % 1000 === 0) {
       setLevel((prevLevel) => prevLevel + 1);
     }
   }, [clickCount]);
 
+  // Har soatda tokenlarni to'ldirish
   useEffect(() => {
     const interval = setInterval(() => {
       setTokens(1000);
@@ -62,8 +66,18 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
+  // Rasmni bosib turishni aniqlash
+  const handleMouseDown = () => {
+    setIsHolding(true);
+  };
+
+  const handleMouseUp = () => {
+    setIsHolding(false);
+  };
+
+  // Click bosilganda ishlaydigan funksiya
   const handleClick = async (event) => {
-    if (tokens > 0) {
+    if (tokens > 0 && !isHolding) { // Faqat bosib turilmasa ishlaydi
       const newClickCount = clickCount + 1;
       const newTokens = tokens - 1;
 
@@ -96,6 +110,7 @@ const Home = () => {
     }
   };
 
+  // Progress bar uchun hisoblar
   const progressWidth = ((clickCount % 1000) / 1000) * 100;
   const tokensWidth = (tokens / 1000) * 100;
 
@@ -115,7 +130,7 @@ const Home = () => {
         <p className="text-white text-center font-bold text-[41px] sm:text-[50px] md:text-[60px]">
           {clickCount}
         </p>
-        <div className="relative w-[296px] mt-4">
+        <div className="relative w-[80%] max-w-[296px] mt-4">
           <div className="p-[2px] rounded-[12px]">
             <div className="bg-white w-full h-[27px] rounded-[12px] relative">
               <div
@@ -129,11 +144,15 @@ const Home = () => {
           </p>
         </div>
       </div>
-      <div className="flex justify-center items-center mt-40">
+      <div className="flex justify-center items-center mt-20 sm:mt-40">
         <img
           src={Img1}
           alt="img"
           onClick={handleClick}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onTouchStart={handleMouseDown}
+          onTouchEnd={handleMouseUp}
           style={{
             cursor: tokens > 0 ? "pointer" : "not-allowed",
             borderRadius: "50%",
