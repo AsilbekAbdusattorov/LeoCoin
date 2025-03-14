@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Task = require("../models/Task");
+const Product = require("../models/Product");
 
 // Telefon raqamni tozalash funksiyasi
 const cleanPhone = (phone) => phone.replace(/\D/g, "");
@@ -110,6 +111,45 @@ router.post("/admin-login", async (req, res) => {
     });
   }
 });
+
+router.post("/buy-product", async (req, res) => {
+  const { email, productId } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ success: false, error: "Пользователь не найден" });
+    }
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ success: false, error: "Продукт не найден" });
+    }
+
+    if (user.tokens < product.price) {
+      return res.status(400).json({
+        success: false,
+        error: "Недостаточно средств",
+      });
+    }
+
+    user.tokens -= product.price;
+    user.purchasedProducts.push(productId);
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Продукт успешно куплен!",
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 
 // Foydalanuvchi ma'lumotlarini olish
 router.get("/user", async (req, res) => {

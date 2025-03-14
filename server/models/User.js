@@ -8,7 +8,7 @@ const UserSchema = new mongoose.Schema({
   level: { type: Number, default: 0 },
   tokens: { type: Number, default: 1000 },
   isAdmin: { type: Boolean, default: false },
-  completedTasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }], // Bajarilgan vazifalar
+  purchasedProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }], // Sotib olingan mahsulotlar
 });
 
 module.exports = mongoose.model("User", UserSchema);
