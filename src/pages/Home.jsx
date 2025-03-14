@@ -1,52 +1,117 @@
 import React, { useState, useEffect } from "react";
 import Img1 from "../img/home/home-1.png";
 import Header from "../components/Header";
+import axios from "axios";
 
 const Home = () => {
-  const [clickCount, setClickCount] = useState(0); // Bosish soni
-  const [level, setLevel] = useState(0); // Daraja
-  const [showClickNumber, setShowClickNumber] = useState(false); // Bosish sonini ko'rsatish
-  const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 }); // Bosish joyi
-  const [tokens, setTokens] = useState(1000); // Tokenlar soni
+  const [clickCount, setClickCount] = useState(0);
+  const [level, setLevel] = useState(0);
+  const [showClickNumber, setShowClickNumber] = useState(false);
+  const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
+  const [tokens, setTokens] = useState(1000);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  // Har 1000 ta bosishda darajani oshirish
+  // Foydalanuvchi ma'lumotlarini yuklash
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userEmail = JSON.parse(localStorage.getItem("user"))?.email; // LocalStoragedan emailni olish
+
+      if (!userEmail) {
+        setError("Foydalanuvchi emaili topilmadi");
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const response = await axios.get("http://localhost:5000/api/auth/user", {
+          params: { email: userEmail },
+        });
+
+        if (response.data.success) {
+          const { clickCount, level, tokens } = response.data.user;
+          setClickCount(clickCount);
+          setLevel(level);
+          setTokens(tokens);
+        } else {
+          setError("Foydalanuvchi ma'lumotlari topilmadi");
+        }
+      } catch (error) {
+        setError(error.response?.data?.error || "Ma'lumotlarni yuklashda xatolik");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, []);
+
+  // Click count 1000 ga yetganda levelni oshirish
   useEffect(() => {
     if (clickCount > 0 && clickCount % 1000 === 0) {
       setLevel((prevLevel) => prevLevel + 1);
     }
   }, [clickCount]);
 
-  // Har soatda tokenlarni to‘ldirish
+  // Har soatda tokenlarni to'ldirish
   useEffect(() => {
     const interval = setInterval(() => {
       setTokens(1000);
-    }, 3600000); // 1 soat = 3600000 ms
+    }, 3600000);
 
     return () => clearInterval(interval);
   }, []);
 
-  // Rasmga bosilganda bosish sonini oshirish va tokenlarni kamaytirish
-  const handleClick = (event) => {
+  // Click bosilganda ishlaydigan funksiya
+  const handleClick = async (event) => {
     if (tokens > 0) {
-      setClickCount((prevCount) => prevCount + 1);
-      setTokens((prevTokens) => prevTokens - 1); // Tokenni 1 ga kamaytirish
+      const newClickCount = clickCount + 1;
+      const newTokens = tokens - 1;
+
+      setClickCount(newClickCount);
+      setTokens(newTokens);
       setClickPosition({ x: event.clientX, y: event.clientY });
       setShowClickNumber(true);
 
-      // 1 soniyadan keyin bosish sonini yashirish
       setTimeout(() => {
         setShowClickNumber(false);
       }, 1000);
+
+      try {
+        const userEmail = JSON.parse(localStorage.getItem("user"))?.email; // LocalStoragedan emailni olish
+        await axios.post(
+          "http://localhost:5000/api/auth/update",
+          {
+            email: userEmail, // Foydalanuvchi emailini yuborish
+            clickCount: newClickCount,
+            level,
+            tokens: newTokens,
+          },
+          {
+            withCredentials: true,
+          }
+        );
+      } catch (error) {
+        console.error("Ma'lumotlarni yangilashda xato:", error);
+      }
     }
   };
 
-  // Progress bar uchun hisoblash
+  // Progress bar uchun hisoblar
   const progressWidth = ((clickCount % 1000) / 1000) * 100;
   const tokensWidth = (tokens / 1000) * 100;
 
+  if (loading) {
+    return <div className="text-white text-center">Yuklanmoqda...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500 text-center">{error}</div>;
+  }
+
   return (
     <>
-      <Header />
+      <Header level={level} />
       <div className="flex flex-col items-center justify-center mt-6">
         <h2 className="text-white text-center font-medium mt-10">LEOcoin’s</h2>
         <p className="text-white text-center font-bold text-[41px]">
@@ -75,7 +140,7 @@ const Home = () => {
             cursor: tokens > 0 ? "pointer" : "not-allowed",
             borderRadius: "50%",
             transition: "transform 0.1s",
-            opacity: tokens > 0 ? 1 : 0.5, // Token tugasa, rasm shaffof bo‘ladi
+            opacity: tokens > 0 ? 1 : 0.5,
           }}
           className="hover:scale-110 active:scale-95"
         />

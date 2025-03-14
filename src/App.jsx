@@ -15,6 +15,7 @@ import PageNotFound from "./pages/PageNotFound";
 import MainLayout from "./layouts/MainLayout";
 import Invite from "./pages/Invite";
 import Register from "./pages/Register";
+import AdminDashboard from "./pages/AdminDashboard";
 import Loader from "./components/Loader";
 
 const App = () => {
@@ -22,9 +23,12 @@ const App = () => {
   const [isRegistered, setIsRegistered] = useState(
     localStorage.getItem("registered") === "true"
   );
+  const [isAdmin, setIsAdmin] = useState(
+    localStorage.getItem("user") && JSON.parse(localStorage.getItem("user")).isAdmin
+  );
 
   useEffect(() => {
-    // 📌 3 soniya yuklanish effekti
+    // 3 soniya yuklanish effekti
     const timer = setTimeout(() => {
       setLoading(false);
     }, 3000);
@@ -35,7 +39,7 @@ const App = () => {
   const router = createBrowserRouter(
     createRoutesFromElements(
       <>
-        {/* 📌 Agar foydalanuvchi ro'yxatdan o'tmagan bo'lsa, register sahifasiga yo'naltiriladi */}
+        {/* Agar foydalanuvchi ro'yxatdan o'tmagan bo'lsa, register sahifasiga yo'naltiriladi */}
         <Route
           path="/"
           element={isRegistered ? <Navigate to="/home" /> : <Navigate to="/register" />}
@@ -46,6 +50,11 @@ const App = () => {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/balance" element={<Balance />} />
           <Route path="/invite" element={<Invite />} />
+          {/* Agar foydalanuvchi admin bo'lsa, AdminDashboard sahifasiga yo'naltiriladi */}
+          <Route
+            path="/admindashboard"
+            element={isAdmin ? <AdminDashboard /> : <Navigate to="/home" />}
+          />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </>

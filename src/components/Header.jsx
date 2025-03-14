@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Img1 from '../img/header/header-1.png'
 
-const Header = () => {
+const Header = ({ level }) => {
   return (
     <div className="bg-transparent">
       <div className="flex justify-between items-center">
@@ -12,7 +12,7 @@ const Header = () => {
         <div className="bg-white w-[66px] h-[32.2px] flex justify-center items-center rounded-[5.63px] drop-shadow-[3.22px_4.02px_0px_#FF6108]">
           <div className="flex justify-between items-center">
             <img className="w-[25px] h-[25px]" src={Img1} alt="logo" />
-            <h2 className="font-semibold ml-[4px]">0</h2>
+            <h2 className="font-semibold ml-[4px]">{level}</h2>
           </div>
         </div>
       </div>
