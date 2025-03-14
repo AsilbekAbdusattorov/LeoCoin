@@ -3,10 +3,13 @@
     {
       "source": "/api/:path*",
       "destination": "https://leocoin.onrender.com/api/:path*"
-    },
+    }
+  ],
+  "redirects": [
     {
       "source": "/(.*)",
-      "destination": "/index.html"
+      "destination": "/index.html",
+      "statusCode": 200
     }
   ],
   "headers": [
