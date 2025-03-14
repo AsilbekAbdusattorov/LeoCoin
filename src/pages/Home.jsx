@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom"; // useNavigate hook'ini import qilamiz
+import { useNavigate } from "react-router-dom";
 import Img1 from "../img/home/home-1.png";
 import Header from "../components/Header";
 import axios from "axios";
@@ -12,17 +12,16 @@ const Home = () => {
   const [tokens, setTokens] = useState(1000);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const navigate = useNavigate(); // useNavigate hook'ini ishga tushiramiz
+  const navigate = useNavigate();
 
-  // Foydalanuvchi ma'lumotlarini yuklash
   useEffect(() => {
     const fetchUserData = async () => {
-      const userEmail = JSON.parse(localStorage.getItem("user"))?.email; // LocalStoragedan emailni olish
+      const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
 
       if (!userEmail) {
         setError("Foydalanuvchi emaili topilmadi");
         setLoading(false);
-        navigate("/register"); // Foydalanuvchini ro'yxatdan o'tkazish sahifasiga yo'naltiramiz
+        navigate("/register");
         return;
       }
 
@@ -47,16 +46,14 @@ const Home = () => {
     };
 
     fetchUserData();
-  }, [navigate]); // navigate ni dependency sifatida qo'shamiz
+  }, [navigate]);
 
-  // Click count 1000 ga yetganda levelni oshirish
   useEffect(() => {
     if (clickCount > 0 && clickCount % 1000 === 0) {
       setLevel((prevLevel) => prevLevel + 1);
     }
   }, [clickCount]);
 
-  // Har soatda tokenlarni to'ldirish
   useEffect(() => {
     const interval = setInterval(() => {
       setTokens(1000);
@@ -65,7 +62,6 @@ const Home = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Click bosilganda ishlaydigan funksiya
   const handleClick = async (event) => {
     if (tokens > 0) {
       const newClickCount = clickCount + 1;
@@ -81,11 +77,11 @@ const Home = () => {
       }, 1000);
 
       try {
-        const userEmail = JSON.parse(localStorage.getItem("user"))?.email; // LocalStoragedan emailni olish
+        const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
         await axios.post(
           "https://leocoin.onrender.com/api/auth/update",
           {
-            email: userEmail, // Foydalanuvchi emailini yuborish
+            email: userEmail,
             clickCount: newClickCount,
             level,
             tokens: newTokens,
@@ -100,7 +96,6 @@ const Home = () => {
     }
   };
 
-  // Progress bar uchun hisoblar
   const progressWidth = ((clickCount % 1000) / 1000) * 100;
   const tokensWidth = (tokens / 1000) * 100;
 
@@ -116,8 +111,8 @@ const Home = () => {
     <>
       <Header level={level} />
       <div className="flex flex-col items-center justify-center mt-6">
-        <h2 className="text-white text-center font-medium mt-10">LEOcoin’s</h2>
-        <p className="text-white text-center font-bold text-[41px]">
+        <h2 className="text-white text-center font-medium mt-10 text-lg sm:text-xl md:text-2xl">LEOcoin’s</h2>
+        <p className="text-white text-center font-bold text-[41px] sm:text-[50px] md:text-[60px]">
           {clickCount}
         </p>
         <div className="relative w-[296px] mt-4">
@@ -145,10 +140,10 @@ const Home = () => {
             transition: "transform 0.1s",
             opacity: tokens > 0 ? 1 : 0.5,
           }}
-          className="hover:scale-110 active:scale-95"
+          className="hover:scale-110 active:scale-95 w-[150px] h-[150px] sm:w-[200px] sm:h-[200px] md:w-[250px] md:h-[250px]"
         />
       </div>
-      <div className="absolute bottom-28 left-1/2 transform -translate-x-1/2 w-[90%]">
+      <div className="absolute bottom-28 left-1/2 transform -translate-x-1/2 w-[90%] max-w-[500px]">
         <p className="text-white text-lg font-bold text-center">
           ⚡ {tokens}/1000
         </p>
