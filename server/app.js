@@ -18,7 +18,7 @@ connectDB();
 // 2. CORS Sozlamalari
 // ==================================================
 const corsOptions = {
-  origin: "http://localhost:5173", // Frontend manzili
+  origin: ["http://localhost:5173", "https://leo-coin-omega.vercel.app"], // Frontend manzili
   credentials: true, // Cookie va autentifikatsiya ma'lumotlarini qabul qilish
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Ruxsat berilgan metodlar
   allowedHeaders: "Content-Type,Authorization", // Ruxsat berilgan headerlar
