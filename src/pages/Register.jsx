@@ -11,20 +11,8 @@ const Register = ({ setIsRegistered }) => {
   const navigate = useNavigate();
 
   const handlePhoneChange = (e) => {
-    let value = e.target.value.replace(/\D/g, "");
-    if (value.startsWith("998")) value = value.slice(3);
-
-    let formatted = "+998";
-    if (value.length > 0) formatted += `-${value.slice(0, 2)}`;
-    if (value.length > 2) formatted += `-${value.slice(2, 5)}`;
-    if (value.length > 5) formatted += `-${value.slice(5, 7)}`;
-    if (value.length > 7) formatted += `-${value.slice(7, 9)}`;
-
-    setPhone(formatted);
-  };
-
-  const handlePhoneFocus = () => {
-    if (!phone) setPhone("+998-");
+    let value = e.target.value.replace(/\D/g, ""); // Faqat raqamlarni qoldiradi
+    setPhone(value); // Faqat raqamlarni saqlaymiz
   };
 
   const handleSubmit = async (e) => {
@@ -34,7 +22,7 @@ const Register = ({ setIsRegistered }) => {
 
     const formData = {
       name,
-      phone: phone.replace(/\D/g, ""),
+      phone, // Telefon raqamni tozalash shart emas, chunki u faqat raqamlardan iborat
       email,
     };
 
@@ -69,7 +57,7 @@ const Register = ({ setIsRegistered }) => {
 
   const isFormValid =
     name.trim().length > 0 &&
-    phone.replace(/\D/g, "").length === 12 &&
+    phone.length >= 9 && // Minimal telefon raqam uzunligi (masalan, 9 ta raqam)
     email.includes("@") &&
     email.includes(".");
 
@@ -94,8 +82,7 @@ const Register = ({ setIsRegistered }) => {
             className="w-full p-3 mb-3 border border-gray-300 rounded-lg text-lg"
             value={phone}
             onChange={handlePhoneChange}
-            onFocus={handlePhoneFocus}
-            maxLength="19"
+            maxLength="15" // Maksimal uzunlik
           />
           <input
             type="email"
