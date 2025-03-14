@@ -16,13 +16,6 @@
       ]
     }
   ],
-  "redirects": [
-    {
-      "source": "/",
-      "destination": "/index.html",
-      "statusCode": 200
-    }
-  ],
   "routes": [
     {
       "src": "/(.*)",
