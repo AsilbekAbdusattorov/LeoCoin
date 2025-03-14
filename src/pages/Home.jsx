@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // useNavigate hook'ini import qilamiz
 import Img1 from "../img/home/home-1.png";
 import Header from "../components/Header";
 import axios from "axios";
@@ -11,6 +12,7 @@ const Home = () => {
   const [tokens, setTokens] = useState(1000);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate(); // useNavigate hook'ini ishga tushiramiz
 
   // Foydalanuvchi ma'lumotlarini yuklash
   useEffect(() => {
@@ -20,6 +22,7 @@ const Home = () => {
       if (!userEmail) {
         setError("Foydalanuvchi emaili topilmadi");
         setLoading(false);
+        navigate("/register"); // Foydalanuvchini ro'yxatdan o'tkazish sahifasiga yo'naltiramiz
         return;
       }
 
@@ -44,7 +47,7 @@ const Home = () => {
     };
 
     fetchUserData();
-  }, []);
+  }, [navigate]); // navigate ni dependency sifatida qo'shamiz
 
   // Click count 1000 ga yetganda levelni oshirish
   useEffect(() => {
