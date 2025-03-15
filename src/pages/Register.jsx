@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
 const Register = ({ setIsRegistered }) => {
@@ -9,26 +9,34 @@ const Register = ({ setIsRegistered }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const location = useLocation();
 
+  // Telefon raqamni faqat raqamlarga aylantirish
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, ""); // Faqat raqamlarni qoldiradi
-    setPhone(value); // Faqat raqamlarni saqlaymiz
+    setPhone(value);
   };
 
+  // Formani yuborish
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-
+  
+    const referralCode = new URLSearchParams(location.search).get("ref");
+  
     const formData = {
       name,
-      phone, // Telefon raqamni tozalash shart emas, chunki u faqat raqamlardan iborat
+      phone,
       email,
+      referralCode,
     };
-
+  
+    console.log("Yuborilayotgan ma'lumotlar:", formData); // Ma'lumotlarni konsolga chiqarish
+  
     try {
       const response = await axios.post(
-        "https://leocoin.onrender.com/api/auth/register",
+        "http://localhost:5000/api/auth/register",
         formData,
         {
           headers: {
@@ -36,11 +44,11 @@ const Register = ({ setIsRegistered }) => {
           },
         }
       );
-
+  
       if (response.data.success) {
         localStorage.setItem("registered", "true");
         localStorage.setItem("user", JSON.stringify(response.data.user));
-
+  
         if (response.data.user.isAdmin) {
           navigate("/admindashboard");
         } else {
@@ -49,17 +57,19 @@ const Register = ({ setIsRegistered }) => {
         }
       }
     } catch (error) {
+      console.error("Xatolik yuz berdi:", error); // Xatolikni konsolga chiqarish
       setError(error.response?.data?.error || "Xatolik yuz berdi");
     } finally {
       setLoading(false);
     }
   };
 
+  // Formani to'g'riligini tekshirish
   const isFormValid =
-    name.trim().length > 0 &&
-    phone.length >= 9 && // Minimal telefon raqam uzunligi (masalan, 9 ta raqam)
-    email.includes("@") &&
-    email.includes(".");
+    name.trim().length > 0 && // Ism bo'sh bo'lmasligi kerak
+    phone.length >= 9 && // Telefon raqami kamida 9 ta raqamdan iborat bo'lishi kerak
+    email.includes("@") && // Emailda @ belgisi bo'lishi kerak
+    email.includes("."); // Emailda . belgisi bo'lishi kerak
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-blue-700">
@@ -75,6 +85,7 @@ const Register = ({ setIsRegistered }) => {
             className="w-full p-3 mb-3 border border-gray-300 rounded-lg text-lg"
             value={name}
             onChange={(e) => setName(e.target.value)}
+            required // Majburiy maydon
           />
           <input
             type="tel"
@@ -83,6 +94,7 @@ const Register = ({ setIsRegistered }) => {
             value={phone}
             onChange={handlePhoneChange}
             maxLength="15" // Maksimal uzunlik
+            required // Majburiy maydon
           />
           <input
             type="email"
@@ -90,6 +102,7 @@ const Register = ({ setIsRegistered }) => {
             className="w-full p-3 mb-4 border border-gray-300 rounded-lg text-lg"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required // Majburiy maydon
           />
           <button
             type="submit"

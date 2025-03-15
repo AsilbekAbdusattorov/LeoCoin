@@ -2,19 +2,22 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
 const Task = require("../models/Task");
-const Product = require("../models/Product");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 // Telefon raqamni tozalash funksiyasi
 const cleanPhone = (phone) => phone.replace(/\D/g, "");
 
 // Ro'yxatdan o'tish yoki kirish
 router.post("/register", async (req, res) => {
-  const { name, phone, email } = req.body;
+  const { name, phone, email, referralCode } = req.body;
+
+  console.log("Qabul qilingan ma'lumotlar:", req.body);
 
   try {
     const cleanedPhone = cleanPhone(phone);
 
-    // Foydalanuvchini email yoki telefon raqam orqali topish
+    // Foydalanuvchi allaqachon mavjudligini tekshirish
     const existingUser = await User.findOne({
       $or: [{ email }, { phone: cleanedPhone }],
     });
@@ -35,18 +38,77 @@ router.post("/register", async (req, res) => {
       clickCount: 0,
       level: 0,
       tokens: 1000,
-      isAdmin:
-        email === process.env.ADMIN_EMAIL &&
-        cleanedPhone === cleanPhone(process.env.ADMIN_PHONE), // Adminni tekshirish
-      completedTasks: [], // Yangi maydon
+      isAdmin: email === process.env.ADMIN_EMAIL && cleanedPhone === cleanPhone(process.env.ADMIN_PHONE),
+      completedTasks: [],
+      referralCode: Math.random().toString(36).substring(7), // Yangi foydalanuvchi uchun referal kod
     });
 
-    await newUser.save();
+    // Agar referal kod kiritilgan bo'lsa
+    if (referralCode) {
+      const referrer = await User.findOne({ referralCode }); // Referal kod egasini topish
+      if (referrer) {
+        referrer.referrals.push(newUser._id); // Yangi foydalanuvchini referal egasining ro'yxatiga qo'shish
+        referrer.level += 1; // Referal egasining levelini oshirish
+        referrer.tokens += 50; // Misol uchun, 50 ta tanga qo'shish
+        await referrer.save(); // O'zgarishlarni saqlash
+      }
+    }
+
+    await newUser.save(); // Yangi foydalanuvchini saqlash
+
+    // JWT token yaratish
+    const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
 
     res.status(201).json({
       success: true,
       message: "Yangi foydalanuvchi ro'yxatdan o'tdi.",
+      token,
       user: newUser,
+    });
+  } catch (error) {
+    console.error("Xatolik yuz berdi:", error);
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// Kirish
+router.post("/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Foydalanuvchini topish
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        error: "Foydalanuvchi topilmadi.",
+      });
+    }
+
+    // Parolni tekshirish
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({
+        success: false,
+        error: "Noto'g'ri parol.",
+      });
+    }
+
+    // JWT token yaratish
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.status(200).json({
+      success: true,
+      message: "Kirish muvaffaqiyatli.",
+      token,
+      user,
     });
   } catch (error) {
     res.status(400).json({
@@ -80,7 +142,7 @@ router.post("/admin-login", async (req, res) => {
           level: 0,
           tokens: 1000,
           isAdmin: true,
-          completedTasks: [], // Yangi maydon
+          completedTasks: [],
         });
 
         await newAdmin.save();
@@ -112,51 +174,12 @@ router.post("/admin-login", async (req, res) => {
   }
 });
 
-router.post("/buy-product", async (req, res) => {
-  const { email, productId } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(404).json({ success: false, error: "Пользователь не найден" });
-    }
-
-    const product = await Product.findById(productId);
-    if (!product) {
-      return res.status(404).json({ success: false, error: "Продукт не найден" });
-    }
-
-    if (user.tokens < product.price) {
-      return res.status(400).json({
-        success: false,
-        error: "Недостаточно средств",
-      });
-    }
-
-    user.tokens -= product.price;
-    user.purchasedProducts.push(productId);
-    await user.save();
-
-    res.status(200).json({
-      success: true,
-      message: "Продукт успешно куплен!",
-      user,
-    });
-  } catch (error) {
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
-
 // Foydalanuvchi ma'lumotlarini olish
 router.get("/user", async (req, res) => {
   const { email } = req.query;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate("referrals");
 
     if (!user) {
       return res.status(404).json({
@@ -168,6 +191,7 @@ router.get("/user", async (req, res) => {
     res.status(200).json({
       success: true,
       user,
+      invitedCount: user.referrals.length, // Taklif qilinganlar soni
     });
   } catch (error) {
     res.status(400).json({
@@ -242,6 +266,105 @@ router.post("/complete-task", async (req, res) => {
       success: true,
       message: "Vazifa muvaffaqiyatli bajarildi!",
       user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// Mahsulot sotib olish
+router.post("/buy-product", async (req, res) => {
+  const { email, productId, price } = req.body;
+
+  // Kerakli maydonlarni tekshirish
+  if (!email || !productId || !price) {
+    return res.status(400).json({
+      success: false,
+      error: "Email, productId va price maydonlari to'ldirilishi shart",
+    });
+  }
+
+  try {
+    // Foydalanuvchini topish
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "Foydalanuvchi topilmadi",
+      });
+    }
+
+    // Mahsulot allaqachon sotib olinganligini tekshirish
+    if (user.purchasedProducts && user.purchasedProducts.includes(productId)) {
+      return res.status(400).json({
+        success: false,
+        error: "Bu mahsulot allaqachon sotib olingan",
+      });
+    }
+
+    // Level hisobidan tanga yechib olish
+    const requiredLevel = 1; // Misol uchun, 1-darajadan tanga yechib olish
+    if (user.level < requiredLevel) {
+      return res.status(400).json({
+        success: false,
+        error: `Sizning darajangiz yetarli emas (${requiredLevel}-daraja kerak)`,
+      });
+    }
+
+    // Level hisobidan tanga yechib olish
+    const deductedAmount = 50; // 50 ta tanga yechib olinadi
+    if (user.level < deductedAmount) {
+      return res.status(400).json({
+        success: false,
+        error: "Level hisobingizda yetarli tanga yo'q",
+      });
+    }
+
+    // Level hisobidan tanga yechib olish
+    user.level -= deductedAmount;
+
+    // Mahsulotni sotib olish
+    if (!user.purchasedProducts) {
+      user.purchasedProducts = []; // Agar purchasedProducts massiv bo'lmasa, uni yaratish
+    }
+    user.purchasedProducts.push(productId);
+
+    // Foydalanuvchini yangilash
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// Referal orqali qo'shilgan foydalanuvchilarni olish
+router.get("/referral-users", async (req, res) => {
+  const { email } = req.query;
+
+  try {
+    const user = await User.findOne({ email }).populate("referrals");
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "Foydalanuvchi topilmadi",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      users: user.referrals,
     });
   } catch (error) {
     res.status(400).json({

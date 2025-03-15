@@ -8,7 +8,10 @@ const UserSchema = new mongoose.Schema({
   level: { type: Number, default: 0 },
   tokens: { type: Number, default: 1000 },
   isAdmin: { type: Boolean, default: false },
-  purchasedProducts: [{ type: mongoose.Schema.Types.ObjectId, ref: "Product" }], // Sotib olingan mahsulotlar
+  completedTasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
+  purchasedProducts: [{ type: String }],
+  referralCode: { type: String, unique: true }, // Referal kodi
+  referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Taklif qilinganlar
 });
 
 module.exports = mongoose.model("User", UserSchema);

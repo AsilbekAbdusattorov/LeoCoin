@@ -26,7 +26,7 @@ const Home = () => {
       }
 
       try {
-        const response = await axios.get("https://leocoin.onrender.com/api/auth/user", {
+        const response = await axios.get("http://localhost:5000/api/auth/user", {
           params: { email: userEmail },
         });
 
@@ -56,9 +56,14 @@ const Home = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setTokens(1000);
-    }, 3600000);
-
+      setTokens((prevTokens) => {
+        if (prevTokens < 1000) {
+          return prevTokens + 1;
+        }
+        return prevTokens;
+      });
+    }, 3600); // 3600ms = 3.6 sekund, 1000 ta tokenni 1 soatda to'ldirish uchun
+  
     return () => clearInterval(interval);
   }, []);
 
@@ -79,7 +84,7 @@ const Home = () => {
       try {
         const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
         await axios.post(
-          "https://leocoin.onrender.com/api/auth/update",
+          "http://localhost:5000/api/auth/update",
           {
             email: userEmail,
             clickCount: newClickCount,

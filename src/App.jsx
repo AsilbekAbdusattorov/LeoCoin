@@ -16,8 +16,6 @@ import MainLayout from "./layouts/MainLayout";
 import Invite from "./pages/Invite";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
-import ProductsAdminDashboard from "./pages/ProductsAdminDashboard"; // Yangi qo'shilgan mahsulotlar paneli
-import AdminPanelSelector from "./pages/AdminPanelSelector"; // Yangi qo'shilgan admin panel tanlovi
 import Loader from "./components/Loader";
 
 const App = () => {
@@ -52,13 +50,11 @@ const App = () => {
           <Route path="/tasks" element={<Tasks />} />
           <Route path="/balance" element={<Balance />} />
           <Route path="/invite" element={<Invite />} />
-          {/* Agar foydalanuvchi admin bo'lsa, AdminPanelSelector sahifasiga yo'naltiriladi */}
+          {/* Agar foydalanuvchi admin bo'lsa, AdminDashboard sahifasiga yo'naltiriladi */}
           <Route
-            path="/admin"
-            element={isAdmin ? <AdminPanelSelector /> : <Navigate to="/home" />}
+            path="/admindashboard"
+            element={isAdmin ? <AdminDashboard /> : <Navigate to="/home" />}
           />
-          <Route path="/admin/tasks" element={<AdminDashboard />} />
-          <Route path="/admin/products" element={<ProductsAdminDashboard />} />
           <Route path="*" element={<PageNotFound />} />
         </Route>
       </>

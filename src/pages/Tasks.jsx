@@ -11,7 +11,7 @@ const Tasks = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get("https://leocoin.onrender.com/api/admin/tasks");
+        const response = await axios.get("http://localhost:5000/api/admin/tasks");
         setTasks(response.data.tasks);
       } catch (error) {
         console.error("Vazifalarni yuklashda xatolik:", error);
@@ -20,7 +20,7 @@ const Tasks = () => {
 
     const fetchAds = async () => {
       try {
-        const response = await axios.get("https://leocoin.onrender.com/api/admin/ads");
+        const response = await axios.get("http://localhost:5000/api/admin/ads");
         setAds(response.data.ads);
       } catch (error) {
         console.error("Reklamalarni yuklashda xatolik:", error);
@@ -48,7 +48,7 @@ const Tasks = () => {
       }
 
       // Foydalanuvchini tekshirish
-      const userResponse = await axios.get("https://leocoin.onrender.com/api/auth/user", {
+      const userResponse = await axios.get("http://localhost:5000/api/auth/user", {
         params: { email: userEmail },
       });
 
@@ -65,7 +65,7 @@ const Tasks = () => {
       }
 
       // Vazifani bajarish
-      const response = await axios.post("https://leocoin.onrender.com/api/auth/complete-task", {
+      const response = await axios.post("http://localhost:5000/api/auth/complete-task", {
         email: userEmail,
         taskId,
       });
@@ -75,7 +75,7 @@ const Tasks = () => {
         setTaskStatus((prev) => ({ ...prev, [taskId]: true }));
 
         // Yangi darajani ko'rsatish
-        const updatedUser = await axios.get("https://leocoin.onrender.com/api/auth/user", {
+        const updatedUser = await axios.get("http://localhost:5000/api/auth/user", {
           params: { email: userEmail },
         });
 

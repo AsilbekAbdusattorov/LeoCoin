@@ -1,158 +1,230 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 import Header from "../components/Header";
+import balanceData from "../balance";
+import Img1 from "../img/invite/invite-3.png";
+import axios from "axios";
 
 const Balance = () => {
-  const [products, setProducts] = useState([]);
+  const [activeTab, setActiveTab] = useState("МАГАЗИН");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [user, setUser] = useState(null);
+  const [products, setProducts] = useState(balanceData.products);
 
-  // Mahsulotlarni yuklash
   useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const response = await axios.get("https://leocoin.onrender.com/api/admin/products");
-        setProducts(response.data.products);
-      } catch (error) {
-        setError("Ошибка при загрузке продуктов");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
+    const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
+  
+    if (!userEmail) {
+      console.error("Foydalanuvchi emaili topilmadi. Iltimos, avval tizimga kiring.");
+      return;
+    }
+  
+    axios.get(`http://localhost:5000/api/auth/user?email=${userEmail}`)
+      .then(response => {
+        if (response.data.success) {
+          setUser(response.data.user);
+  
+          // purchasedProducts massiv ekanligini tekshirish
+          const purchasedProducts = Array.isArray(response.data.user.purchasedProducts)
+            ? response.data.user.purchasedProducts
+            : [];
+  
+          setProducts(prevProducts => 
+            prevProducts.map(product => ({
+              ...product,
+              purchased: purchasedProducts.includes(product.id), // product.id ni tekshirish
+            }))
+          );
+        } else {
+          console.error("Foydalanuvchi ma'lumotlarini yuklashda xato:", response.data.error);
+        }
+      })
+      .catch(error => {
+        console.error("Foydalanuvchi ma'lumotlarini yuklashda xato:", error);
+      });
   }, []);
 
-  // Mahsulot sotib olish
-  const handleBuyProduct = async (productId) => {
-    const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
-
-    try {
-      const response = await axios.post("https://leocoin.onrender.com/api/auth/buy-product", {
-        email: userEmail,
-        productId,
-      });
-
-      if (response.data.success) {
-        alert("Продукт успешно куплен!");
-        // Yangilangan balansni ko'rsatish
-        const updatedProducts = products.map((product) =>
-          product._id === productId ? { ...product, purchased: true } : product
-        );
-        setProducts(updatedProducts);
-        setSelectedProduct(null); // Modalni yopish
-      }
-    } catch (error) {
-      setError(error.response?.data?.error || "Ошибка при покупке продукта");
-    }
+  const openModal = (product) => {
+    setSelectedProduct(product);
+    setIsModalOpen(true);
   };
 
-  if (loading) {
-    return <div className="text-white text-center">Загрузка...</div>;
-  }
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
-  if (error) {
-    return <div className="text-red-500 text-center">{error}</div>;
-  }
-
-  // Mahsulotlarni kategoriya bo'yicha ajratish
-  const shopProducts = products.filter((product) => product.category === "shop");
-  const inventoryProducts = products.filter((product) => product.category === "inventory");
-
+  const handleBuyProduct = async (productId, price) => {
+    const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
+  
+    if (!userEmail) {
+      alert("Foydalanuvchi emaili topilmadi. Iltimos, avval tizimga kiring.");
+      return;
+    }
+  
+    try {
+      const response = await axios.post("http://localhost:5000/api/auth/buy-product", {
+        email: userEmail,
+        productId,
+        price,
+      });
+  
+      if (response.data.success) {
+        setUser(response.data.user);
+        setProducts(prevProducts => 
+          prevProducts.map(product => 
+            product.id === productId ? { ...product, purchased: true } : product
+          )
+        );
+        alert("Mahsulot muvaffaqiyatli sotib olindi!");
+      }
+    } catch (error) {
+      console.error("Mahsulot sotib olishda xato:", error);
+      alert(error.response?.data?.error || "Mahsulot sotib olishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
+    }
+  };
   return (
     <>
       <Header />
-      <div className="flex justify-center">
-        <div className="w-full max-w-4xl p-4">
-          <h1 className="text-2xl font-bold mb-6">Магазин</h1>
-          <div className="grid grid-cols-2 gap-4">
-            {shopProducts.map((product) => (
-              <div
-                key={product._id}
-                className="bg-[#5881d8] rounded-xl p-4 shadow-lg cursor-pointer"
-                onClick={() => setSelectedProduct(product)}
-              >
-                <div className="w-full h-32 bg-white rounded-lg flex items-center justify-center">
-                  {product.image ? (
-                    <img
-                      src={product.image}
-                      alt={product.title}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  ) : (
-                    <span className="text-gray-500">Изображение отсутствует</span>
-                  )}
-                </div>
-                <button
-                  className="w-full bg-white text-center font-bold rounded-lg mt-2 py-2 drop-shadow-[2px_3px_0px_#FF6108]"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleBuyProduct(product._id);
-                  }}
-                  disabled={product.purchased}
-                >
-                  {product.purchased ? "Куплено" : `Купить (${product.price} танга)`}
-                </button>
-              </div>
-            ))}
-          </div>
-
-          <h1 className="text-2xl font-bold mt-8 mb-6">Инвентарь</h1>
-          <div className="grid grid-cols-2 gap-4">
-            {inventoryProducts.map((product) => (
-              <div
-                key={product._id}
-                className="bg-[#5881d8] rounded-xl p-4 shadow-lg cursor-pointer"
-                onClick={() => setSelectedProduct(product)}
-              >
-                <div className="w-full h-32 bg-white rounded-lg flex items-center justify-center">
-                  {product.image ? (
-                    <img
-                      src={product.image}
-                      alt={product.title}
-                      className="w-full h-full object-cover rounded-lg"
-                    />
-                  ) : (
-                    <span className="text-gray-500">Изображение отсутствует</span>
-                  )}
-                </div>
-                <button
-                  className="w-full bg-white text-center font-bold rounded-lg mt-2 py-2 drop-shadow-[2px_3px_0px_#FF6108]"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleBuyProduct(product._id);
-                  }}
-                  disabled={product.purchased}
-                >
-                  {product.purchased ? "Куплено" : `Купить (${product.price} танга)`}
-                </button>
-              </div>
-            ))}
-          </div>
+      {/* Top Navigation */}
+      <div className="flex justify-center mt-2">
+        <div className="flex bg-[#3064d3] p-1 rounded-lg">
+          <button
+            className={`px-4 py-1 font-bold rounded-lg border-2 ${
+              activeTab === "МАГАЗИН"
+                ? "bg-white text-[#0101fd] border-[#0101fd]"
+                : "bg-transparent text-white border-transparent"
+            }`}
+            onClick={() => setActiveTab("МАГАЗИН")}
+          >
+            МАГАЗИН
+          </button>
+          <button
+            className={`px-4 py-1 font-bold rounded-lg border-2 ${
+              activeTab === "ИНВЕНТАРЬ"
+                ? "bg-[#0101fd] text-white border-[#0101fd]"
+                : "bg-transparent text-white border-transparent"
+            }`}
+            onClick={() => setActiveTab("ИНВЕНТАРЬ")}
+          >
+            ИНВЕНТАРЬ
+          </button>
         </div>
       </div>
 
-      {/* Modal oynasi */}
-      {selectedProduct && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
-            <h2 className="text-xl font-bold mb-4">{selectedProduct.title}</h2>
-            <p>{selectedProduct.description}</p>
-            <p>Цена: {selectedProduct.price} танга</p>
-            {selectedProduct.image && (
-              <img
-                src={selectedProduct.image}
-                alt={selectedProduct.title}
-                className="w-full h-48 object-cover rounded-lg mt-4"
-              />
-            )}
+      {/* Main Content */}
+      <div className="flex justify-center">
+        {activeTab === "МАГАЗИН" ? (
+          <div className="grid grid-cols-2 mt-3 mb-20 gap-x-5 gap-y-2">
+            {products.map((product) => (
+              <div
+                key={product.id}
+                className="w-[153px] h-[230px] bg-[#5881d8] rounded-xl p-4 shadow-lg"
+              >
+                <div className="w-[137px] h-[147px] bg-white rounded-lg -ml-2 -mt-2">
+                  <img
+                    src={product.image}
+                    alt={`Product ${product.id}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+                <button className="w-[137px] h-[24px] flex justify-center items-center text-[#0101fd] bg-white text-center -ml-2 font-bold rounded-lg mt-2 drop-shadow-[2px_3px_0px_#FF6108]">
+                  <img
+                    className="w-[17px] mr-2 h-[17px]"
+                    src={Img1}
+                    alt="img"
+                  />{" "}
+                  {product.price}
+                </button>
+                <button
+                  className={`w-[137px] h-[24px] bg-[#0101fd] text-white text-center -ml-2 font-bold rounded-lg mt-2 drop-shadow-[2px_3px_0px_#FFF] ${
+                    product.purchased ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
+                  onClick={() =>
+                    !product.purchased &&
+                    handleBuyProduct(product.id, product.price)
+                  }
+                  disabled={product.purchased}
+                >
+                  {product.purchased ? "Куплено" : "Купить"}
+                </button>
+              </div>
+            ))}
+          </div>
+        ) : (
+          // ИНВЕНТАРЬ qismi
+          <div className="grid grid-cols-2 mt-3 mb-20 gap-x-5 gap-y-2">
+            {products.map((product, index) => (
+              <div
+                key={index}
+                className="w-[153px] h-[198px] bg-[#5881d8] rounded-xl p-4 shadow-lg"
+              >
+                <div className="w-[137px] h-[147px] bg-white rounded-lg -ml-2 -mt-2">
+                  <img
+                    src={product.image}
+                    alt={`Product ${index + 1}`}
+                    className="w-full h-full object-cover rounded-lg"
+                  />
+                </div>
+                <button
+                  className="w-[137px] h-[24px] flex justify-center items-center text-[#0101fd] bg-white text-center -ml-2 font-bold rounded-lg mt-2 drop-shadow-[2px_3px_0px_#FF6108]"
+                  onClick={() => openModal(product)}
+                >
+                  ТВОЙ ТОВАР
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modal */}
+      {isModalOpen && selectedProduct && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+          <div className="rounded-2xl p-4 w-11/12 max-w-md relative shadow-lg">
             <button
-              className="w-full bg-blue-500 text-white font-bold rounded-lg mt-4 py-2 hover:bg-blue-600"
-              onClick={() => setSelectedProduct(null)}
+              className="absolute left-2 bg-gray-200 text-black px-3 py-1 rounded-full text-sm top-[-20px]"
+              onClick={closeModal}
             >
-              Закрыть
+              Назад
             </button>
+
+            <div className="flex justify-center bg-white py-[33px] rounded-[20px]">
+              <img src={selectedProduct.image} alt="select" />
+            </div>
+
+            <p className="text-center text-black bg-white py-3 rounded-[20px] text-sm mt-2">
+              {selectedProduct.description}
+            </p>
+
+            <div className="flex justify-between items-center mt-2">
+              {selectedProduct.purchased ? (
+                <button className="w-full h-[24px] bg-[#0101fd] text-white text-center font-bold rounded-lg mt-2 drop-shadow-[2px_3px_0px_#FFF]">
+                  Проверяй инвентарь :)
+                </button>
+              ) : (
+                <>
+                  <button
+                    className="w-[137px] h-[24px] bg-[#0101fd] text-white text-center -ml-2 font-bold rounded-lg mt-2 drop-shadow-[2px_3px_0px_#FFF]"
+                    onClick={() =>
+                      handleBuyProduct(
+                        selectedProduct.id,
+                        selectedProduct.price
+                      )
+                    }
+                  >
+                    Купить
+                  </button>
+                  <button className="w-[137px] h-[24px] flex justify-center items-center text-[#0101fd] bg-white text-center -ml-2 font-bold rounded-lg mt-2 drop-shadow-[2px_3px_0px_#FF6108]">
+                    <img
+                      className="w-[17px] mr-2 h-[17px]"
+                      src={Img1}
+                      alt="img"
+                    />{" "}
+                    {selectedProduct.price}
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       )}
