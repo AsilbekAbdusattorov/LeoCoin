@@ -18,7 +18,7 @@ const Invite = () => {
   const openModal = () => {
     const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
     if (userEmail) {
-      const link = `http://localhost:5173/register?ref=${userEmail}`; // Referal link
+      const link = `https://leo-coin-5396.vercel.app/register?ref=${userEmail}`; // Referal link
       setReferralLink(link);
   
       QRCode.toDataURL(link)
@@ -41,7 +41,7 @@ const Invite = () => {
   const openDetailsModal = () => {
     const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
     if (userEmail) {
-      axios.get(`http://localhost:5000/api/auth/referral-users?email=${userEmail}`)
+      axios.get(`https://leocoin.onrender.com/api/auth/referral-users?email=${userEmail}`)
         .then(response => {
           if (response.data.success) {
             setReferralUsers(response.data.users);
@@ -62,7 +62,7 @@ const Invite = () => {
     const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
 
     if (userEmail) {
-      axios.get(`http://localhost:5000/api/auth/user?email=${userEmail}`)
+      axios.get(`https://leocoin.onrender.com/api/auth/user?email=${userEmail}`)
         .then(response => {
           if (response.data.success) {
             setInvitedCount(response.data.invitedCount);

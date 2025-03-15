@@ -36,7 +36,7 @@ const Register = ({ setIsRegistered }) => {
   
     try {
       const response = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "https://leocoin.onrender.com/api/auth/register",
         formData,
         {
           headers: {

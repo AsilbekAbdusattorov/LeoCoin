@@ -26,7 +26,7 @@ const Home = () => {
       }
 
       try {
-        const response = await axios.get("http://localhost:5000/api/auth/user", {
+        const response = await axios.get("https://leocoin.onrender.com/api/auth/user", {
           params: { email: userEmail },
         });
 

@@ -19,7 +19,7 @@ const Balance = () => {
       return;
     }
   
-    axios.get(`http://localhost:5000/api/auth/user?email=${userEmail}`)
+    axios.get(`https://leocoin.onrender.com/api/auth/user?email=${userEmail}`)
       .then(response => {
         if (response.data.success) {
           setUser(response.data.user);
@@ -62,7 +62,7 @@ const Balance = () => {
     }
   
     try {
-      const response = await axios.post("http://localhost:5000/api/auth/buy-product", {
+      const response = await axios.post("https://leocoin.onrender.com/api/auth/buy-product", {
         email: userEmail,
         productId,
         price,
