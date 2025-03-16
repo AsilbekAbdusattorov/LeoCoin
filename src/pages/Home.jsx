@@ -148,15 +148,18 @@ const Home = () => {
           alt="img"
           onClick={handleClick}
           onContextMenu={(e) => e.preventDefault()} // O'ng tugma bloklash
-          onMouseDown={(e) => e.preventDefault()} // Bosib turganda nusxa olish menyusini yo'q qilish
-          onTouchStart={(e) => e.preventDefault()} // Mobil qurilmalarda uzoq bosish menyusini yo'q qilish
+          onMouseDown={(e) => e.preventDefault()} // Sichqoncha bosib turganda menyuni yo'q qilish
+          onTouchStart={(e) => e.preventDefault()} // Mobil qurilmalar uchun bloklash
+          draggable={false} // Rasmni sudrab olib bo'lmasligi uchun
           style={{
+            pointerEvents: "none", // Rasmni bosib bo'lmaydigan qilish (agar kerak bo'lsa)
+            userSelect: "none", // Nusxa olishni to'liq bloklash
             cursor: tokens > 0 ? "pointer" : "not-allowed",
             borderRadius: "50%",
             transition: "transform 0.1s",
             opacity: tokens > 0 ? 1 : 0.5,
           }}
-          className="w-[150px] h-[150px] md:w-[200px] md:h-[200px] lg:w-[250px] lg:h-[250px] hover:scale-110 active:scale-95"
+          className="w-[150px] h-[150px] md:w-[200px] md:h-[200px] lg:w-[250px] lg:h-[250px] hover:scale-110 active:scale-95 select-none"
         />
       </div>
 
