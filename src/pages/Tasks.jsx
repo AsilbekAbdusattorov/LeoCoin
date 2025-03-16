@@ -5,7 +5,6 @@ import axios from "axios";
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
-  const [ads, setAds] = useState([]); // Reklamalar uchun state
   const [taskStatus, setTaskStatus] = useState({}); // Vazifa holati (bajarilgan yoki yo'q)
 
   useEffect(() => {
@@ -20,38 +19,23 @@ const Tasks = () => {
       }
     };
 
-    const fetchAds = async () => {
-      try {
-        const response = await axios.get(
-          "https://leocoin.onrender.com/api/admin/ads"
-        );
-        setAds(response.data.ads);
-      } catch (error) {
-        console.error("Reklamalarni yuklashda xatolik:", error);
-      }
-    };
-
     fetchTasks();
-    fetchAds();
   }, []);
 
   const handleTaskClick = async (taskId, link) => {
     try {
       const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
 
-      // Foydalanuvchi emaili mavjudligini tekshirish
       if (!userEmail) {
         alert("Foydalanuvchi emaili topilmadi. Iltimos, avval tizimga kiring.");
         return;
       }
 
-      // taskId mavjudligini tekshirish
       if (!taskId) {
         alert("Vazifa IDsi topilmadi.");
         return;
       }
 
-      // Foydalanuvchini tekshirish
       const userResponse = await axios.get(
         "https://leocoin.onrender.com/api/auth/user",
         {
@@ -64,17 +48,15 @@ const Tasks = () => {
         return;
       }
 
-      // Vazifa allaqachon bajarilganligini tekshirish
       if (userResponse.data.user.completedTasks.includes(taskId)) {
         alert("Bu vazifa allaqachon bajarilgan.");
         setTaskStatus((prev) => ({ ...prev, [taskId]: true }));
         return;
       }
 
-      // Foydalanuvchi ID sini olish (misol uchun, bot orqali yuborilgan)
-      const userId = userResponse.data.user.telegramId; // Agar foydalanuvchi Telegram ID sini saqlasangiz
+      const userId = userResponse.data.user.telegramId;
 
-      // Bot orqali obuna boʻlganligini tekshirish
+      // Obuna holatini tekshirish
       const subscriptionCheck = await axios.post(
         "https://leocoin.onrender.com/api/auth/check-subscription",
         {
@@ -87,7 +69,6 @@ const Tasks = () => {
         return;
       }
 
-      // Vazifani bajarish
       const response = await axios.post(
         "https://leocoin.onrender.com/api/auth/complete-task",
         {
@@ -97,10 +78,8 @@ const Tasks = () => {
       );
 
       if (response.data.success) {
-        // Vazifa bajarildi deb belgilash
         setTaskStatus((prev) => ({ ...prev, [taskId]: true }));
 
-        // Yangi darajani ko'rsatish
         const updatedUser = await axios.get(
           "https://leocoin.onrender.com/api/auth/user",
           {
@@ -113,7 +92,6 @@ const Tasks = () => {
           alert(`Tabriklaymiz! Sizning darajangiz: ${level}`);
         }
 
-        // Telegram linkiga yo'naltirish
         window.open(link, "_blank");
       }
     } catch (error) {
@@ -139,32 +117,6 @@ const Tasks = () => {
             </h2>
           </div>
           <div className="space-y-4 mt-12">
-            {/* Reklamalarni render qilish */}
-            {ads.map((ad, index) => (
-              <div
-                key={`ad-${index}`}
-                className="flex items-center justify-between bg-[#555] text-white p-4 rounded-lg shadow-lg hover:bg-[#666] transition duration-300"
-              >
-                <div className="flex items-center space-x-4">
-                  <img
-                    className="w-[50px] h-[50px] rounded-lg"
-                    src={ad.image}
-                    alt="ad"
-                  />
-                  <div>
-                    <p className="text-sm font-bold">{ad.title}</p>
-                    <p className="text-xs text-gray-300">{ad.description}</p>
-                  </div>
-                </div>
-                <button
-                  className="bg-white text-[#0101fd] px-4 py-2 text-sm font-medium rounded-lg shadow hover:bg-blue-600 hover:text-white transition duration-300"
-                  onClick={() => window.open(ad.link, "_blank")}
-                >
-                  Ko'rish
-                </button>
-              </div>
-            ))}
-
             {/* Vazifalarni render qilish */}
             {tasks.map((task, index) => (
               <div

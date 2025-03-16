@@ -5,6 +5,9 @@ const Task = require("../models/Task");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const QRCode = require("qrcode");
+const { Telegraf } = require("telegraf");
+const bot = new Telegraf("7206832800:AAGz49EzEKPYz8ae8HJOJ1Klui_fgmng-5w");
+const CHANNEL_ID = "@AsilbekCode"; // Kanal username yoki ID
 
 // Telefon raqamni tozalash funksiyasi
 const cleanPhone = (phone) => phone.replace(/\D/g, "");
@@ -195,7 +198,6 @@ router.get("/user", async (req, res) => {
     res.status(200).json({
       success: true,
       user,
-      invitedCount: user.referrals.length, // Taklif qilinganlar soni
     });
   } catch (error) {
     res.status(400).json({
@@ -204,6 +206,7 @@ router.get("/user", async (req, res) => {
     });
   }
 });
+
 
 // Foydalanuvchi ma'lumotlarini yangilash
 router.post("/update", async (req, res) => {
@@ -281,7 +284,7 @@ router.post("/complete-task", async (req, res) => {
       error: error.message,
     });
   }
-});
+}); 
 
 // Mahsulot sotib olish
 router.post("/buy-product", async (req, res) => {
@@ -467,10 +470,6 @@ router.post("/use-qr-code", async (req, res) => {
     });
   }
 });
-
-const { Telegraf } = require("telegraf");
-const bot = new Telegraf("7206832800:AAGz49EzEKPYz8ae8HJOJ1Klui_fgmng-5w");
-
 router.post("/check-subscription", async (req, res) => {
   const { userId } = req.body;
 
