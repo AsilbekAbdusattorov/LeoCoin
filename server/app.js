@@ -3,8 +3,7 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
-const authRoutes = require("./routes/auth");
-const adminRoutes = require("./routes/admin");
+const tasksRoutes = require("./routes/tasks");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -35,8 +34,7 @@ app.use(express.json()); // JSON ma'lumotlarni qabul qilish uchun middleware
 // ==================================================
 // 4. Routerlarni qo'llash
 // ==================================================
-app.use("/api/auth", authRoutes); // Auth routerlarini qo'llash
-app.use("/api/admin", adminRoutes); // Admin routerlarini qo'llash
+app.use("/api/tasks", tasksRoutes); // Tasks routerlarini qo'llash
 
 // ==================================================
 // 5. Asosiy sahifa uchun test endpoint
