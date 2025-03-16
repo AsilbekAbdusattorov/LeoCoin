@@ -467,4 +467,20 @@ router.post("/use-qr-code", async (req, res) => {
     });
   }
 });
+
+const { Telegraf } = require("telegraf");
+const bot = new Telegraf("7206832800:AAGz49EzEKPYz8ae8HJOJ1Klui_fgmng-5w");
+
+router.post("/check-subscription", async (req, res) => {
+  const { userId } = req.body;
+
+  try {
+    const member = await bot.telegram.getChatMember(CHANNEL_ID, userId);
+    const isSubscribed = ["member", "administrator", "creator"].includes(member.status);
+    res.json({ isSubscribed });
+  } catch (error) {
+    console.error("Xatolik:", error);
+    res.status(500).json({ error: "Xatolik yuz berdi." });
+  }
+});
 module.exports = router;

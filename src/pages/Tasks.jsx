@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
-import Img1 from '../img/tasks/tasks-telegram.png';
+import Img1 from "../img/tasks/tasks-telegram.png";
 import axios from "axios";
 
 const Tasks = () => {
@@ -11,7 +11,9 @@ const Tasks = () => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await axios.get("https://leocoin.onrender.com/api/admin/tasks");
+        const response = await axios.get(
+          "https://leocoin.onrender.com/api/admin/tasks"
+        );
         setTasks(response.data.tasks);
       } catch (error) {
         console.error("Vazifalarni yuklashda xatolik:", error);
@@ -20,7 +22,9 @@ const Tasks = () => {
 
     const fetchAds = async () => {
       try {
-        const response = await axios.get("https://leocoin.onrender.com/api/admin/ads");
+        const response = await axios.get(
+          "https://leocoin.onrender.com/api/admin/ads"
+        );
         setAds(response.data.ads);
       } catch (error) {
         console.error("Reklamalarni yuklashda xatolik:", error);
@@ -48,9 +52,12 @@ const Tasks = () => {
       }
 
       // Foydalanuvchini tekshirish
-      const userResponse = await axios.get("https://leocoin.onrender.com/api/auth/user", {
-        params: { email: userEmail },
-      });
+      const userResponse = await axios.get(
+        "https://leocoin.onrender.com/api/auth/user",
+        {
+          params: { email: userEmail },
+        }
+      );
 
       if (!userResponse.data.success) {
         alert("Foydalanuvchi topilmadi!");
@@ -64,20 +71,42 @@ const Tasks = () => {
         return;
       }
 
+      // Foydalanuvchi ID sini olish (misol uchun, bot orqali yuborilgan)
+      const userId = userResponse.data.user.telegramId; // Agar foydalanuvchi Telegram ID sini saqlasangiz
+
+      // Bot orqali obuna boʻlganligini tekshirish
+      const subscriptionCheck = await axios.post(
+        "https://leocoin.onrender.com/api/auth/check-subscription",
+        {
+          userId,
+        }
+      );
+
+      if (!subscriptionCheck.data.isSubscribed) {
+        alert("Iltimos, kanalga obuna boʻling!");
+        return;
+      }
+
       // Vazifani bajarish
-      const response = await axios.post("https://leocoin.onrender.com/api/auth/complete-task", {
-        email: userEmail,
-        taskId,
-      });
+      const response = await axios.post(
+        "https://leocoin.onrender.com/api/auth/complete-task",
+        {
+          email: userEmail,
+          taskId,
+        }
+      );
 
       if (response.data.success) {
         // Vazifa bajarildi deb belgilash
         setTaskStatus((prev) => ({ ...prev, [taskId]: true }));
 
         // Yangi darajani ko'rsatish
-        const updatedUser = await axios.get("https://leocoin.onrender.com/api/auth/user", {
-          params: { email: userEmail },
-        });
+        const updatedUser = await axios.get(
+          "https://leocoin.onrender.com/api/auth/user",
+          {
+            params: { email: userEmail },
+          }
+        );
 
         if (updatedUser.data.success) {
           const { level } = updatedUser.data.user;
@@ -88,8 +117,14 @@ const Tasks = () => {
         window.open(link, "_blank");
       }
     } catch (error) {
-      console.error("Vazifani bajarishda xatolik:", error.response?.data || error.message);
-      alert(error.response?.data?.error || "Vazifani bajarishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
+      console.error(
+        "Vazifani bajarishda xatolik:",
+        error.response?.data || error.message
+      );
+      alert(
+        error.response?.data?.error ||
+          "Vazifani bajarishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
+      );
     }
   };
 
@@ -111,7 +146,11 @@ const Tasks = () => {
                 className="flex items-center justify-between bg-[#555] text-white p-4 rounded-lg shadow-lg hover:bg-[#666] transition duration-300"
               >
                 <div className="flex items-center space-x-4">
-                  <img className="w-[50px] h-[50px] rounded-lg" src={ad.image} alt="ad" />
+                  <img
+                    className="w-[50px] h-[50px] rounded-lg"
+                    src={ad.image}
+                    alt="ad"
+                  />
                   <div>
                     <p className="text-sm font-bold">{ad.title}</p>
                     <p className="text-xs text-gray-300">{ad.description}</p>
@@ -133,7 +172,11 @@ const Tasks = () => {
                 className="flex items-center justify-between bg-[#444] text-white p-4 rounded-lg shadow-lg hover:bg-[#555] transition duration-300"
               >
                 <div className="flex items-center space-x-4">
-                  <img className="w-[50px] h-[50px] rounded-lg" src={Img1} alt="img" />
+                  <img
+                    className="w-[50px] h-[50px] rounded-lg"
+                    src={Img1}
+                    alt="img"
+                  />
                   <div>
                     <p className="text-sm font-bold">{task.title}</p>
                     <p className="text-xs text-gray-300">{task.reward} tanga</p>
