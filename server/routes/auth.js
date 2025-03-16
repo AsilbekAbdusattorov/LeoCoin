@@ -36,7 +36,7 @@ router.post("/register", async (req, res) => {
       name,
       phone: cleanedPhone,
       email,
-      clickCount: 1000, // Boshlang'ich qiymati 1000
+      clickCount: 0,
       level: 0,
       tokens: 1000,
       isAdmin:
@@ -141,7 +141,7 @@ router.post("/admin-login", async (req, res) => {
           name: "Admin",
           phone: cleanedPhone,
           email: process.env.ADMIN_EMAIL,
-          clickCount: 1000, // Boshlang'ich qiymati 1000
+          clickCount: 0,
           level: 0,
           tokens: 1000,
           isAdmin: true,
@@ -443,7 +443,7 @@ router.post("/use-qr-code", async (req, res) => {
       });
     }
 
-    const qrCode = user.qrCodes.find((qr) => qr.qrCodeUrl === qrCodeUrl);
+    const qrCode = user.qrCodes.find(qr => qr.qrCodeUrl === qrCodeUrl);
 
     if (qrCode.isUsed) {
       return res.status(400).json({
@@ -467,38 +467,4 @@ router.post("/use-qr-code", async (req, res) => {
     });
   }
 });
-
-// Tokenni avtomatik to'ldirish
-router.post("/update-tokens", async (req, res) => {
-  const { email } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        error: "Foydalanuvchi topilmadi",
-      });
-    }
-
-    // Tokenni to'ldirish
-    if (user.tokens < 1000) {
-      user.tokens += 1;
-      await user.save();
-    }
-
-    res.status(200).json({
-      success: true,
-      user,
-    });
-  } catch (error) {
-    console.error("Xatolik yuz berdi:", error); // Xatolikni konsolga chiqarish
-    res.status(400).json({
-      success: false,
-      error: error.message,
-    });
-  }
-});
-
 module.exports = router;

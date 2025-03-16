@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import axios from "axios";
 
 const Home = () => {
-  const [clickCount, setClickCount] = useState(1000); // Boshlang'ich qiymati 1000
+  const [clickCount, setClickCount] = useState(0);
   const [level, setLevel] = useState(0);
   const [showClickNumber, setShowClickNumber] = useState(false);
   const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
@@ -26,12 +26,9 @@ const Home = () => {
       }
 
       try {
-        const response = await axios.get(
-          "https://leocoin.onrender.com/api/auth/user",
-          {
-            params: { email: userEmail },
-          }
-        );
+        const response = await axios.get("https://leocoin.onrender.com/api/auth/user", {
+          params: { email: userEmail },
+        });
 
         if (response.data.success) {
           const { clickCount, level, tokens } = response.data.user;
@@ -42,9 +39,7 @@ const Home = () => {
           setError("Foydalanuvchi ma'lumotlari topilmadi");
         }
       } catch (error) {
-        setError(
-          error.response?.data?.error || "Ma'lumotlarni yuklashda xatolik"
-        );
+        setError(error.response?.data?.error || "Ma'lumotlarni yuklashda xatolik");
       } finally {
         setLoading(false);
       }
@@ -60,24 +55,14 @@ const Home = () => {
   }, [clickCount]);
 
   useEffect(() => {
-    const interval = setInterval(async () => {
-      const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
-  
-      if (userEmail) {
-        try {
-          const response = await axios.post("https://leocoin.onrender.com/api/auth/update-tokens", {
-            email: userEmail,
-          });
-  
-          if (response.data.success) {
-            setTokens(response.data.user.tokens); // Tokenni yangilash
-          }
-        } catch (error) {
-          console.error("Tokenni yangilashda xato:", error);
-          setError("Tokenni yangilashda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
+    const interval = setInterval(() => {
+      setTokens((prevTokens) => {
+        if (prevTokens < 1000) {
+          return prevTokens + 1;
         }
-      }
-    }, 3600); // Har 3.6 sekundda tokenni to'ldirish
+        return prevTokens;
+      });
+    }, 3600); // 3600ms = 3.6 sekund, 1000 ta tokenni 1 soatda to'ldirish uchun
   
     return () => clearInterval(interval);
   }, []);
@@ -131,9 +116,7 @@ const Home = () => {
     <>
       <Header level={level} />
       <div className="flex flex-col items-center justify-center mt-6">
-        <h2 className="text-white text-center font-medium mt-10 text-2xl md:text-3xl lg:text-4xl">
-          LEOcoin’s
-        </h2>
+        <h2 className="text-white text-center font-medium mt-10 text-2xl md:text-3xl lg:text-4xl">LEOcoin’s</h2>
         <p className="text-white text-center font-bold text-[41px] md:text-[50px] lg:text-[60px]">
           {clickCount}
         </p>
