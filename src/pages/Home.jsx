@@ -26,9 +26,12 @@ const Home = () => {
       }
 
       try {
-        const response = await axios.get("https://leocoin.onrender.com/api/auth/user", {
-          params: { email: userEmail },
-        });
+        const response = await axios.get(
+          "https://leocoin.onrender.com/api/auth/user",
+          {
+            params: { email: userEmail },
+          }
+        );
 
         if (response.data.success) {
           const { clickCount, level, tokens } = response.data.user;
@@ -40,7 +43,9 @@ const Home = () => {
           setError("Foydalanuvchi ma'lumotlari topilmadi");
         }
       } catch (error) {
-        setError(error.response?.data?.error || "Ma'lumotlarni yuklashda xatolik");
+        setError(
+          error.response?.data?.error || "Ma'lumotlarni yuklashda xatolik"
+        );
       } finally {
         setLoading(false);
       }
@@ -64,7 +69,7 @@ const Home = () => {
         return prevTokens;
       });
     }, 3600); // 3600ms = 3.6 sekund, 1000 ta tokenni 1 soatda to'ldirish uchun
-  
+
     return () => clearInterval(interval);
   }, []);
 
@@ -117,7 +122,9 @@ const Home = () => {
     <>
       <Header level={level} />
       <div className="flex flex-col items-center justify-center mt-6">
-        <h2 className="text-white text-center font-medium mt-10 text-2xl md:text-3xl lg:text-4xl">LEOcoin’s</h2>
+        <h2 className="text-white text-center font-medium mt-10 text-2xl md:text-3xl lg:text-4xl">
+          LEOcoin’s
+        </h2>
         <p className="text-white text-center font-bold text-[41px] md:text-[50px] lg:text-[60px]">
           {clickCount}
         </p>
@@ -140,6 +147,9 @@ const Home = () => {
           src={Img1}
           alt="img"
           onClick={handleClick}
+          onContextMenu={(e) => e.preventDefault()} // O'ng tugma bloklash
+          onMouseDown={(e) => e.preventDefault()} // Bosib turganda nusxa olish menyusini yo'q qilish
+          onTouchStart={(e) => e.preventDefault()} // Mobil qurilmalarda uzoq bosish menyusini yo'q qilish
           style={{
             cursor: tokens > 0 ? "pointer" : "not-allowed",
             borderRadius: "50%",
@@ -149,6 +159,7 @@ const Home = () => {
           className="w-[150px] h-[150px] md:w-[200px] md:h-[200px] lg:w-[250px] lg:h-[250px] hover:scale-110 active:scale-95"
         />
       </div>
+
       <div className="absolute bottom-20 md:bottom-28 left-1/2 transform -translate-x-1/2 w-[90%]">
         <p className="text-white text-lg font-bold text-center">
           ⚡ {tokens}/1000
