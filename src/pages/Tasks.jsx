@@ -2,15 +2,37 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Img1 from "../img/tasks/tasks-telegram.png";
 import axios from "axios";
-import { tasks as tasksData } from "../server/tasksdata"; // tasksdata.js dan ma'lumotlarni import qilish
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
+  const [ads, setAds] = useState([]); // Reklamalar uchun state
   const [taskStatus, setTaskStatus] = useState({}); // Vazifa holati (bajarilgan yoki yo'q)
 
   useEffect(() => {
-    // tasksdata.js dan ma'lumotlarni olish
-    setTasks(tasksData);
+    const fetchTasks = async () => {
+      try {
+        const response = await axios.get(
+          "https://leocoin.onrender.com/api/admin/tasks"
+        );
+        setTasks(response.data.tasks);
+      } catch (error) {
+        console.error("Vazifalarni yuklashda xatolik:", error);
+      }
+    };
+
+    const fetchAds = async () => {
+      try {
+        const response = await axios.get(
+          "https://leocoin.onrender.com/api/admin/ads"
+        );
+        setAds(response.data.ads);
+      } catch (error) {
+        console.error("Reklamalarni yuklashda xatolik:", error);
+      }
+    };
+
+    fetchTasks();
+    fetchAds();
   }, []);
 
   const handleTaskClick = async (taskId, link) => {
@@ -47,25 +69,11 @@ const Tasks = () => {
 
       const userId = userResponse.data.user.telegramId;
 
-      if (!userId) {
-        alert("Foydalanuvchi Telegram ID si topilmadi.");
-        return;
-      }
-
-      // Kanal ID sini aniqlash
-      const channelId = link.includes("t.me") ? link.split("/").pop() : null;
-
-      if (!channelId) {
-        alert("Kanal ID si topilmadi.");
-        return;
-      }
-
       // Obuna holatini tekshirish
       const subscriptionCheck = await axios.post(
         "https://leocoin.onrender.com/api/auth/check-subscription",
         {
           userId,
-          channelId,
         }
       );
 
@@ -122,6 +130,32 @@ const Tasks = () => {
             </h2>
           </div>
           <div className="space-y-4 mt-12">
+            {/* Reklamalarni render qilish */}
+            {ads.map((ad, index) => (
+              <div
+                key={`ad-${index}`}
+                className="flex items-center justify-between bg-[#555] text-white p-4 rounded-lg shadow-lg hover:bg-[#666] transition duration-300"
+              >
+                <div className="flex items-center space-x-4">
+                  <img
+                    className="w-[50px] h-[50px] rounded-lg"
+                    src={ad.image}
+                    alt="ad"
+                  />
+                  <div>
+                    <p className="text-sm font-bold">{ad.title}</p>
+                    <p className="text-xs text-gray-300">{ad.description}</p>
+                  </div>
+                </div>
+                <button
+                  className="bg-white text-[#0101fd] px-4 py-2 text-sm font-medium rounded-lg shadow hover:bg-blue-600 hover:text-white transition duration-300"
+                  onClick={() => window.open(ad.link, "_blank")}
+                >
+                  Ko'rish
+                </button>
+              </div>
+            ))}
+
             {/* Vazifalarni render qilish */}
             {tasks.map((task, index) => (
               <div

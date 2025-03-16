@@ -1,22 +1,10 @@
-// // routes/tasks.js
-const express = require("express");
-const router = express.Router();
-const tasksData = require("../tasksdata"); // tasksdata.js faylidan ma'lumotlarni olish
+const mongoose = require("mongoose");
 
-// Barcha vazifalarni olish
-router.get("/", (req, res) => {
-  res.json(tasksData);
+const TaskSchema = new mongoose.Schema({
+  title: { type: String, required: true },
+  description: { type: String, required: true },
+  reward: { type: Number, required: true },
+  link: { type: String, required: true }, // Telegram linki
 });
 
-// ID bo'yicha bitta vazifani olish
-router.get("/:id", (req, res) => {
-  const taskId = parseInt(req.params.id);
-  const task = tasksData.find((t) => t.id === taskId);
-  if (task) {
-    res.json(task);
-  } else {
-    res.status(404).json({ message: "Vazifa topilmadi" });
-  }
-});
-
-module.exports = router;
+module.exports = mongoose.model("Task", TaskSchema);

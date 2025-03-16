@@ -3,7 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
-const tasksRoutes = require("./models/Task");
+const authRoutes = require("./routes/auth");
+const adminRoutes = require("./routes/admin");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -19,7 +20,7 @@ connectDB();
 const corsOptions = {
   origin: ["http://localhost:5173", "https://leo-coin-omega.vercel.app"], // Frontend manzili
   credentials: true, // Cookie va autentifikatsiya ma'lumotlarini qabul qilish
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS", // Ruxsat berilgan metodlar
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Ruxsat berilgan metodlar
   allowedHeaders: "Content-Type,Authorization", // Ruxsat berilgan headerlar
 };
 
@@ -34,7 +35,8 @@ app.use(express.json()); // JSON ma'lumotlarni qabul qilish uchun middleware
 // ==================================================
 // 4. Routerlarni qo'llash
 // ==================================================
-app.use("/api/tasks", tasksRoutes); // Tasks routerlarini qo'llash
+app.use("/api/auth", authRoutes); // Auth routerlarini qo'llash
+app.use("/api/admin", adminRoutes); // Admin routerlarini qo'llash
 
 // ==================================================
 // 5. Asosiy sahifa uchun test endpoint
