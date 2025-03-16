@@ -443,7 +443,7 @@ router.post("/use-qr-code", async (req, res) => {
       });
     }
 
-    const qrCode = user.qrCodes.find(qr => qr.qrCodeUrl === qrCodeUrl);
+    const qrCode = user.qrCodes.find((qr) => qr.qrCodeUrl === qrCodeUrl);
 
     if (qrCode.isUsed) {
       return res.status(400).json({
@@ -493,6 +493,7 @@ router.post("/update-tokens", async (req, res) => {
       user,
     });
   } catch (error) {
+    console.error("Xatolik yuz berdi:", error); // Xatolikni konsolga chiqarish
     res.status(400).json({
       success: false,
       error: error.message,
