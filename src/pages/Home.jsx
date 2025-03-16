@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import axios from "axios";
 
 const Home = () => {
-  const [clickCount, setClickCount] = useState(0);
+  const [clickCount, setClickCount] = useState(1000);
   const [level, setLevel] = useState(0);
   const [showClickNumber, setShowClickNumber] = useState(false);
   const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
