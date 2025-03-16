@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import axios from "axios";
 
 const Home = () => {
-  const [clickCount, setClickCount] = useState(1000);
+  const [clickCount, setClickCount] = useState(1000); // Boshlang'ich qiymat 1000
   const [level, setLevel] = useState(0);
   const [showClickNumber, setShowClickNumber] = useState(false);
   const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
@@ -32,7 +32,8 @@ const Home = () => {
 
         if (response.data.success) {
           const { clickCount, level, tokens } = response.data.user;
-          setClickCount(clickCount);
+          // Agar clickCount 0 bo'lsa, uni 1000 ga o'rnatamiz
+          setClickCount(clickCount === 0 ? 1000 : clickCount);
           setLevel(level);
           setTokens(tokens);
         } else {
