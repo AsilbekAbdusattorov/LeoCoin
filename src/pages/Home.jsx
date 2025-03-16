@@ -147,25 +147,9 @@ const Home = () => {
           src={Img1}
           alt="img"
           onClick={handleClick}
-          onContextMenu={(e) => e.preventDefault()} // O'ng tugma menyusini bloklash
-          onMouseDown={(e) => {
-            if (e.button === 2) e.preventDefault(); // O'ng tugma bosilishining oldini olish
-          }}
-          onTouchStart={(e) => {
-            if (e.touches.length > 1) e.preventDefault(); // Uzoq bosishni bloklash
-          }}
-          draggable={false} // Rasmni sudrab bo'lmasligi uchun
-          style={{
-            userSelect: "none", // Nusxa olishni bloklash
-            cursor: tokens > 0 ? "pointer" : "not-allowed",
-            borderRadius: "50%",
-            transition: "transform 0.1s",
-            opacity: tokens > 0 ? 1 : 0.5,
-          }}
-          className="w-[150px] h-[150px] md:w-[200px] md:h-[200px] lg:w-[250px] lg:h-[250px] hover:scale-110 active:scale-95 select-none"
+          className="custom-img w-[150px] h-[150px] md:w-[200px] md:h-[200px] lg:w-[250px] lg:h-[250px] hover:scale-110 active:scale-95"
         />
       </div>
-
       <div className="absolute bottom-20 md:bottom-28 left-1/2 transform -translate-x-1/2 w-[90%]">
         <p className="text-white text-lg font-bold text-center">
           ⚡ {tokens}/1000
