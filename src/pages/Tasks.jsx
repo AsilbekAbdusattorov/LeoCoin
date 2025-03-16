@@ -2,24 +2,15 @@ import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import Img1 from "../img/tasks/tasks-telegram.png";
 import axios from "axios";
+import { tasks as tasksData } from "../tasksdata"; // Faqat tasks ma'lumotlarini import qilish
 
 const Tasks = () => {
   const [tasks, setTasks] = useState([]);
   const [taskStatus, setTaskStatus] = useState({}); // Vazifa holati (bajarilgan yoki yo'q)
 
   useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const response = await axios.get(
-          "https://leocoin.onrender.com/api/admin/tasks"
-        );
-        setTasks(response.data.tasks);
-      } catch (error) {
-        console.error("Vazifalarni yuklashda xatolik:", error);
-      }
-    };
-
-    fetchTasks();
+    // tasksdata.js dan ma'lumotlarni olish
+    setTasks(tasksData);
   }, []);
 
   const handleTaskClick = async (taskId, link) => {
@@ -61,6 +52,7 @@ const Tasks = () => {
         "https://leocoin.onrender.com/api/auth/check-subscription",
         {
           userId,
+          channelId: link.includes("t.me") ? link.split("/").pop() : null, // Kanal ID sini aniqlash
         }
       );
 

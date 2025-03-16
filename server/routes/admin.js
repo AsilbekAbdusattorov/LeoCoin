@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const Task = require("../models/Task");
-// const Product = require("../models/Product");
 
+// Vazifa qo'shish
 router.post("/add-task", async (req, res) => {
   const { title, description, reward, link } = req.body;
 
@@ -29,6 +29,7 @@ router.post("/add-task", async (req, res) => {
   }
 });
 
+// Barcha vazifalarni olish
 router.get("/tasks", async (req, res) => {
   try {
     const tasks = await Task.find().sort({ _id: -1 }); // Yangi qo'shilganlar tepaga chiqadi
