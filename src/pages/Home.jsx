@@ -5,7 +5,7 @@ import Header from "../components/Header";
 import axios from "axios";
 
 const Home = () => {
-  const [clickCount, setClickCount] = useState(0);
+  const [clickCount, setClickCount] = useState(1000); // Boshlang'ich qiymati 1000
   const [level, setLevel] = useState(0);
   const [showClickNumber, setShowClickNumber] = useState(false);
   const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
@@ -55,15 +55,20 @@ const Home = () => {
   }, [clickCount]);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTokens((prevTokens) => {
-        if (prevTokens < 1000) {
-          return prevTokens + 1;
+    const interval = setInterval(async () => {
+      const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
+
+      if (userEmail) {
+        try {
+          await axios.post("https://leocoin.onrender.com/api/auth/update-tokens", {
+            email: userEmail,
+          });
+        } catch (error) {
+          console.error("Tokenni yangilashda xato:", error);
         }
-        return prevTokens;
-      });
-    }, 3600); // 3600ms = 3.6 sekund, 1000 ta tokenni 1 soatda to'ldirish uchun
-  
+      }
+    }, 3600); // Har 3.6 sekundda tokenni to'ldirish
+
     return () => clearInterval(interval);
   }, []);
 

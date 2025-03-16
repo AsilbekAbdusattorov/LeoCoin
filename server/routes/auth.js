@@ -4,6 +4,7 @@ const User = require("../models/User");
 const Task = require("../models/Task");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const QRCode = require("qrcode");
 
 // Telefon raqamni tozalash funksiyasi
 const cleanPhone = (phone) => phone.replace(/\D/g, "");
@@ -38,7 +39,9 @@ router.post("/register", async (req, res) => {
       clickCount: 0,
       level: 0,
       tokens: 1000,
-      isAdmin: email === process.env.ADMIN_EMAIL && cleanedPhone === cleanPhone(process.env.ADMIN_PHONE),
+      isAdmin:
+        email === process.env.ADMIN_EMAIL &&
+        cleanedPhone === cleanPhone(process.env.ADMIN_PHONE),
       completedTasks: [],
       referralCode: Math.random().toString(36).substring(7), // Yangi foydalanuvchi uchun referal kod
     });
@@ -149,7 +152,8 @@ router.post("/admin-login", async (req, res) => {
 
         return res.status(200).json({
           success: true,
-          message: "Admin mavjud emas edi. Yangi admin yaratildi va kirish muvaffaqiyatli.",
+          message:
+            "Admin mavjud emas edi. Yangi admin yaratildi va kirish muvaffaqiyatli.",
           admin: newAdmin,
         });
       }
@@ -239,13 +243,17 @@ router.post("/complete-task", async (req, res) => {
     // Foydalanuvchini topish
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(404).json({ success: false, error: "Foydalanuvchi topilmadi" });
+      return res
+        .status(404)
+        .json({ success: false, error: "Foydalanuvchi topilmadi" });
     }
 
     // Vazifani topish
     const task = await Task.findById(taskId);
     if (!task) {
-      return res.status(404).json({ success: false, error: "Vazifa topilmadi" });
+      return res
+        .status(404)
+        .json({ success: false, error: "Vazifa topilmadi" });
     }
 
     // Agar foydalanuvchi bu vazifani avval bajargan bo'lsa
@@ -279,7 +287,6 @@ router.post("/complete-task", async (req, res) => {
 router.post("/buy-product", async (req, res) => {
   const { email, productId, price } = req.body;
 
-  // Kerakli maydonlarni tekshirish
   if (!email || !productId || !price) {
     return res.status(400).json({
       success: false,
@@ -333,12 +340,29 @@ router.post("/buy-product", async (req, res) => {
     }
     user.purchasedProducts.push(productId);
 
-    // Foydalanuvchini yangilash
+    // QR kod generatsiya qilish
+    const qrData = JSON.stringify({
+      userId: user._id,
+      productId: productId,
+      timestamp: new Date().toISOString(),
+    });
+
+    const qrCodeUrl = await QRCode.toDataURL(qrData); // QR kodni generatsiya qilish
+
+    // QR kodni foydalanuvchiga saqlash
+    user.qrCodes = user.qrCodes || [];
+    user.qrCodes.push({
+      productId: productId,
+      qrCodeUrl: qrCodeUrl,
+      isUsed: false, // QR kod bir marta ishlatilganligini tekshirish
+    });
+
     await user.save();
 
     res.status(200).json({
       success: true,
       user,
+      qrCodeUrl, // QR kodni frontendga yuborish
     });
   } catch (error) {
     res.status(400).json({
@@ -406,4 +430,73 @@ router.post("/handle-referral", async (req, res) => {
   }
 });
 
+router.post("/use-qr-code", async (req, res) => {
+  const { qrCodeUrl } = req.body;
+
+  try {
+    const user = await User.findOne({ "qrCodes.qrCodeUrl": qrCodeUrl });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "QR kod topilmadi",
+      });
+    }
+
+    const qrCode = user.qrCodes.find(qr => qr.qrCodeUrl === qrCodeUrl);
+
+    if (qrCode.isUsed) {
+      return res.status(400).json({
+        success: false,
+        error: "Bu QR kod allaqachon ishlatilgan",
+      });
+    }
+
+    // QR kodni ishlatilgan deb belgilash
+    qrCode.isUsed = true;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "QR kod muvaffaqiyatli ishlatildi.",
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
+// Tokenni avtomatik to'ldirish
+router.post("/update-tokens", async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: "Foydalanuvchi topilmadi",
+      });
+    }
+
+    // Tokenni to'ldirish
+    if (user.tokens < 1000) {
+      user.tokens += 1;
+      await user.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      user,
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
 module.exports = router;
