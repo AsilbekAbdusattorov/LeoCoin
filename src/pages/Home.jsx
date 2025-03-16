@@ -147,13 +147,16 @@ const Home = () => {
           src={Img1}
           alt="img"
           onClick={handleClick}
-          onContextMenu={(e) => e.preventDefault()} // O'ng tugma bloklash
-          onMouseDown={(e) => e.preventDefault()} // Sichqoncha bosib turganda menyuni yo'q qilish
-          onTouchStart={(e) => e.preventDefault()} // Mobil qurilmalar uchun bloklash
-          draggable={false} // Rasmni sudrab olib bo'lmasligi uchun
+          onContextMenu={(e) => e.preventDefault()} // O'ng tugma menyusini bloklash
+          onMouseDown={(e) => {
+            if (e.button === 2) e.preventDefault(); // O'ng tugma bosilishining oldini olish
+          }}
+          onTouchStart={(e) => {
+            if (e.touches.length > 1) e.preventDefault(); // Uzoq bosishni bloklash
+          }}
+          draggable={false} // Rasmni sudrab bo'lmasligi uchun
           style={{
-            pointerEvents: "none", // Rasmni bosib bo'lmaydigan qilish (agar kerak bo'lsa)
-            userSelect: "none", // Nusxa olishni to'liq bloklash
+            userSelect: "none", // Nusxa olishni bloklash
             cursor: tokens > 0 ? "pointer" : "not-allowed",
             borderRadius: "50%",
             transition: "transform 0.1s",
