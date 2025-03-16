@@ -1,5 +1,5 @@
-const { Telegraf } = require("telegraf");
-const axios = require("axios");
+import { Telegraf } from "telegraf";
+import axios from "axios";
 
 const bot = new Telegraf("7206832800:AAGz49EzEKPYz8ae8HJOJ1Klui_fgmng-5w");
 
