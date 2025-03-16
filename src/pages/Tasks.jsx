@@ -47,12 +47,25 @@ const Tasks = () => {
 
       const userId = userResponse.data.user.telegramId;
 
+      if (!userId) {
+        alert("Foydalanuvchi Telegram ID si topilmadi.");
+        return;
+      }
+
+      // Kanal ID sini aniqlash
+      const channelId = link.includes("t.me") ? link.split("/").pop() : null;
+
+      if (!channelId) {
+        alert("Kanal ID si topilmadi.");
+        return;
+      }
+
       // Obuna holatini tekshirish
       const subscriptionCheck = await axios.post(
         "https://leocoin.onrender.com/api/auth/check-subscription",
         {
           userId,
-          channelId: link.includes("t.me") ? link.split("/").pop() : null, // Kanal ID sini aniqlash
+          channelId,
         }
       );
 

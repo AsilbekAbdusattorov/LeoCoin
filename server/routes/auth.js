@@ -6,8 +6,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const QRCode = require("qrcode");
 const { Telegraf } = require("telegraf");
-const bot = new Telegraf("7206832800:AAGz49EzEKPYz8ae8HJOJ1Klui_fgmng-5w");
-const CHANNEL_ID = "@AsilbekCode"; // Kanal username yoki ID
+const bot = new Telegraf("7206832800:AAGz49EzEKPYz8ae8HJOJ1Klui_fgmng-5w"); // Bot tokeni
 
 // Telefon raqamni tozalash funksiyasi
 const cleanPhone = (phone) => phone.replace(/\D/g, "");
@@ -471,15 +470,25 @@ router.post("/use-qr-code", async (req, res) => {
   }
 });
 router.post("/check-subscription", async (req, res) => {
-  const { userId } = req.body;
+  const { userId, channelId } = req.body; // channelId ni qabul qilish
+
+  if (!userId || !channelId) {
+    return res.status(400).json({
+      success: false,
+      error: "userId va channelId maydonlari to'ldirilishi shart",
+    });
+  }
 
   try {
-    const member = await bot.telegram.getChatMember(CHANNEL_ID, userId);
+    // Foydalanuvchini kanalga obuna bo'lganligini tekshirish
+    const member = await bot.telegram.getChatMember(channelId, userId);
     const isSubscribed = ["member", "administrator", "creator"].includes(member.status);
+
     res.json({ isSubscribed });
   } catch (error) {
     console.error("Xatolik:", error);
     res.status(500).json({ error: "Xatolik yuz berdi." });
   }
 });
+
 module.exports = router;
