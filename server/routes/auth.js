@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const User = require("../models/User");
-const Task = require("../models/Task");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const QRCode = require("qrcode");
 const { Telegraf } = require("telegraf");
 const bot = new Telegraf("7206832800:AAGz49EzEKPYz8ae8HJOJ1Klui_fgmng-5w"); // Bot tokeni
 
@@ -155,7 +153,9 @@ router.post("/complete-task", async (req, res) => {
         .json({ success: false, error: "Foydalanuvchi topilmadi" });
     }
 
-    const task = await Task.findById(taskId);
+    // Vazifani tasksdata.js dan olish
+    const task = tasksData.find((task) => task._id === taskId);
+
     if (!task) {
       return res
         .status(404)
