@@ -5,8 +5,8 @@ import Header from "../components/Header";
 import axios from "axios";
 
 const Home = () => {
-  const [clickCount, setClickCount] = useState(1000); // Boshlang'ich qiymat 1000
-  const [level, setLevel] = useState(0);
+  const [clickCount, setClickCount] = useState(1); // Boshlang'ich qiymat 1
+  const [level, setLevel] = useState(1); // Boshlang'ich qiymat 1
   const [showClickNumber, setShowClickNumber] = useState(false);
   const [clickPosition, setClickPosition] = useState({ x: 0, y: 0 });
   const [tokens, setTokens] = useState(1000);
@@ -32,9 +32,9 @@ const Home = () => {
 
         if (response.data.success) {
           const { clickCount, level, tokens } = response.data.user;
-          // Agar clickCount 0 bo'lsa, uni 1000 ga o'rnatamiz
-          setClickCount(clickCount === 0 ? 1000 : clickCount);
-          setLevel(level);
+          // Agar clickCount yoki level 0 bo'lsa, ularni 1 ga o'rnatamiz
+          setClickCount(clickCount === 0 ? 1 : clickCount);
+          setLevel(level === 0 ? 1 : level);
           setTokens(tokens);
         } else {
           setError("Foydalanuvchi ma'lumotlari topilmadi");
