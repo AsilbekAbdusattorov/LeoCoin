@@ -374,4 +374,36 @@ router.get("/referral-users", async (req, res) => {
   }
 });
 
+// auth.js ga qo'shish
+router.post("/handle-referral", async (req, res) => {
+  const { referrerEmail, newUserId } = req.body;
+
+  try {
+    // Referal link egasini topish
+    const referrer = await User.findOne({ email: referrerEmail });
+
+    if (referrer) {
+      // Referal egasiga 1 LEO tanga qo'shish
+      referrer.tokens += 1;
+      referrer.referrals.push(newUserId); // Yangi foydalanuvchini referal egasining ro'yxatiga qo'shish
+      await referrer.save();
+
+      res.status(200).json({
+        success: true,
+        message: "1 LEO tanga muvaffaqiyatli qo'shildi.",
+      });
+    } else {
+      res.status(404).json({
+        success: false,
+        error: "Referal link egasi topilmadi.",
+      });
+    }
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message,
+    });
+  }
+});
+
 module.exports = router;

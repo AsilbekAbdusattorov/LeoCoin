@@ -18,9 +18,10 @@ const Invite = () => {
   const openModal = () => {
     const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
     if (userEmail) {
-      const link = `https://leo-coin-5396.vercel.app/register?ref=${userEmail}`; // Referal link
+      const link = `https://t.me/Leo_coins_bot?start=${userEmail}`; // Telegram botga referal link
       setReferralLink(link);
-  
+
+      // QR kod generatsiyasi
       QRCode.toDataURL(link)
         .then(url => {
           setQrCodeUrl(url);
