@@ -4,7 +4,7 @@ import Img2 from '../img/header/header2.png'
 
 const Header = ({ level }) => {
   return (
-    <div className="bg-transparent flex justify-center">
+    <div className="bg-transparent flex justify-around">
       <div className="flex justify-between items-center">
         <div className="bg-white w-[66px] h-[32.2px] flex justify-center items-center rounded-[5.63px] drop-shadow-[3.22px_4.02px_0px_#FF6108]">
           <div className="flex justify-between items-center">
