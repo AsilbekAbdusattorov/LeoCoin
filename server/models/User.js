@@ -10,8 +10,8 @@ const UserSchema = new mongoose.Schema({
   isAdmin: { type: Boolean, default: false },
   completedTasks: [{ type: mongoose.Schema.Types.ObjectId, ref: "Task" }],
   purchasedProducts: [{ type: String }],
-  referralCode: { type: String, unique: true }, // Referal kodi
-  referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }], // Taklif qilinganlar
+  referralCode: { type: String, unique: true },
+  referrals: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 });
 
 module.exports = mongoose.model("User", UserSchema);
