@@ -3,7 +3,6 @@ import Header from "../components/Header";
 import balanceData from "../balance";
 import Img1 from "../img/invite/invite-3.png";
 import axios from "axios";
-import QRCode from "qrcode";
 
 const Balance = () => {
   const [activeTab, setActiveTab] = useState("МАГАЗИН");
@@ -11,26 +10,25 @@ const Balance = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [user, setUser] = useState(null);
   const [products, setProducts] = useState(balanceData.products);
-  const [qrCodeUrl, setQrCodeUrl] = useState("");
 
   useEffect(() => {
     const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
-
+  
     if (!userEmail) {
       console.error("Foydalanuvchi emaili topilmadi. Iltimos, avval tizimga kiring.");
       return;
     }
-
+  
     axios.get(`https://leocoin.onrender.com/api/auth/user?email=${userEmail}`)
       .then(response => {
         if (response.data.success) {
           setUser(response.data.user);
-
+  
           // purchasedProducts massiv ekanligini tekshirish
           const purchasedProducts = Array.isArray(response.data.user.purchasedProducts)
             ? response.data.user.purchasedProducts
             : [];
-
+  
           setProducts(prevProducts => 
             prevProducts.map(product => ({
               ...product,
@@ -57,19 +55,19 @@ const Balance = () => {
 
   const handleBuyProduct = async (productId, price) => {
     const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
-
+  
     if (!userEmail) {
       alert("Foydalanuvchi emaili topilmadi. Iltimos, avval tizimga kiring.");
       return;
     }
-
+  
     try {
       const response = await axios.post("https://leocoin.onrender.com/api/auth/buy-product", {
         email: userEmail,
         productId,
         price,
       });
-
+  
       if (response.data.success) {
         setUser(response.data.user);
         setProducts(prevProducts => 
@@ -77,7 +75,6 @@ const Balance = () => {
             product.id === productId ? { ...product, purchased: true } : product
           )
         );
-        setQrCodeUrl(response.data.qrCodeUrl); // QR kodni saqlash
         alert("Mahsulot muvaffaqiyatli sotib olindi!");
       }
     } catch (error) {
@@ -85,7 +82,6 @@ const Balance = () => {
       alert(error.response?.data?.error || "Mahsulot sotib olishda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
     }
   };
-
   return (
     <>
       <Header />
@@ -199,12 +195,6 @@ const Balance = () => {
             <p className="text-center text-black bg-white py-3 rounded-[20px] text-sm mt-2">
               {selectedProduct.description}
             </p>
-
-            {qrCodeUrl && (
-              <div className="flex justify-center mt-2">
-                <img src={qrCodeUrl} alt="QR Code" className="w-32 h-32" />
-              </div>
-            )}
 
             <div className="flex justify-between items-center mt-2">
               {selectedProduct.purchased ? (

@@ -397,8 +397,6 @@ router.get("/referral-users", async (req, res) => {
     });
   }
 });
-
-// auth.js ga qo'shish
 router.post("/handle-referral", async (req, res) => {
   const { referrerEmail, newUserId } = req.body;
 
