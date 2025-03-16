@@ -1,5 +1,4 @@
 import { Telegraf } from "telegraf";
-import axios from "axios";
 
 const bot = new Telegraf("7206832800:AAGz49EzEKPYz8ae8HJOJ1Klui_fgmng-5w");
 
@@ -8,8 +7,15 @@ bot.command("check", async (ctx) => {
   const userId = ctx.from.id; // Foydalanuvchi ID sini olish
   const channelId = ctx.message.text.split(" ")[1]; // Kanal ID sini olish
 
+  // Kanal ID sini tekshirish
   if (!channelId) {
-    ctx.reply("Iltimos, kanal ID sini kiriting.");
+    ctx.reply("Iltimos, kanal ID sini kiriting. Misol: /check @AsilbekCode");
+    return;
+  }
+
+  // Kanal ID formati tekshirish
+  if (!channelId.startsWith("@") && !channelId.startsWith("-100")) {
+    ctx.reply("Noto'g'ri kanal ID formati. Iltimos, @username yoki -1001234567890 formatida kiriting.");
     return;
   }
 
@@ -21,7 +27,7 @@ bot.command("check", async (ctx) => {
     if (isSubscribed) {
       ctx.reply("Siz kanalga obuna bo'lgansiz! 🎉");
     } else {
-      ctx.reply(`Iltimos, kanalga obuna bo'ling: https://t.me/${channelId}`);
+      ctx.reply(`Iltimos, kanalga obuna bo'ling: https://t.me/${channelId.replace("@", "")}`);
     }
   } catch (error) {
     console.error("Xatolik:", error);
