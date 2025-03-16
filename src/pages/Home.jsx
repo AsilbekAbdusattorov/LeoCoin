@@ -62,28 +62,23 @@ const Home = () => {
   useEffect(() => {
     const interval = setInterval(async () => {
       const userEmail = JSON.parse(localStorage.getItem("user"))?.email;
-
+  
       if (userEmail) {
         try {
-          const response = await axios.post(
-            "https://leocoin.onrender.com/api/auth/update-tokens",
-            {
-              email: userEmail,
-            }
-          );
-
+          const response = await axios.post("https://leocoin.onrender.com/api/auth/update-tokens", {
+            email: userEmail,
+          });
+  
           if (response.data.success) {
             setTokens(response.data.user.tokens); // Tokenni yangilash
           }
         } catch (error) {
           console.error("Tokenni yangilashda xato:", error);
-          setError(
-            "Tokenni yangilashda xatolik yuz berdi. Iltimos, qayta urinib ko'ring."
-          );
+          setError("Tokenni yangilashda xatolik yuz berdi. Iltimos, qayta urinib ko'ring.");
         }
       }
     }, 3600); // Har 3.6 sekundda tokenni to'ldirish
-
+  
     return () => clearInterval(interval);
   }, []);
 

@@ -36,7 +36,7 @@ router.post("/register", async (req, res) => {
       name,
       phone: cleanedPhone,
       email,
-      clickCount: 0,
+      clickCount: 1000, // Boshlang'ich qiymati 1000
       level: 0,
       tokens: 1000,
       isAdmin:
@@ -141,7 +141,7 @@ router.post("/admin-login", async (req, res) => {
           name: "Admin",
           phone: cleanedPhone,
           email: process.env.ADMIN_EMAIL,
-          clickCount: 0,
+          clickCount: 1000, // Boshlang'ich qiymati 1000
           level: 0,
           tokens: 1000,
           isAdmin: true,
@@ -500,4 +500,5 @@ router.post("/update-tokens", async (req, res) => {
     });
   }
 });
+
 module.exports = router;
